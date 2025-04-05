@@ -451,4 +451,27 @@ body {
     color: #4df;
     text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
     font-weight: bold;
+}
+
+.official-site-link {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.official-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #4a90e2;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.official-link:hover {
+    background-color: #357abd;
+}
+
+.official-link i {
+    margin-right: 8px;
 } 
