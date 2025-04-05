@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>クロノスサーガ</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div class="game-info">
+            <div id="score"><i class="fas fa-star"></i> スコア: 0</div>
+            <div id="life"><i class="fas fa-heart"></i> ライフ: 3</div>
+            <div id="best-score"><i class="fas fa-trophy"></i> ベストスコア: 0</div>
+        </div>
+    </div>
+
+    <!-- モーダルウィンドウ -->
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <h2 id="resultTitle">ゲームオーバー</h2>
+            <div class="result-info">
+                <p><i class="fas fa-layer-group"></i> レベル: <span id="finalLevel"></span></p>
+                <p><i class="fas fa-star"></i> 難易度: <span id="finalDifficulty"></span></p>
+                <p><i class="fas fa-star"></i> スコア: <span id="finalScore"></span></p>
+                <p><i class="fas fa-trophy"></i> ベストスコア: <span id="bestScore"></span></p>
+                <span id="newRecordBadge" class="new-record-badge"><i class="fas fa-crown"></i> 新記録！</span>
+            </div>
+            <div class="share-buttons">
+                <button onclick="shareOnTwitter()" class="share-button twitter">
+                    <i class="fab fa-twitter"></i> X(Twitter)でシェア
+                </button>
+                <button onclick="shareOnLine()" class="share-button line">
+                    <i class="fab fa-line"></i> LINEでシェア
+                </button>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="retryGame()">
+                    <i class="fas fa-redo"></i> <span id="retryButtonText">リトライ</span>
+                </button>
+                <button onclick="document.getElementById('resultModal').style.display='none'">
+                    <i class="fas fa-cog"></i> 設定に戻る
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-panel">
+        <div class="title-section">
+            <h1><i class="fas fa-hourglass-half"></i> クロノスサーガ</h1>
+            <h2>時を操る冒険の始まり</h2>
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-gamepad"></i> 操作方法</h3>
+            <div class="control-list">
+                <div class="control-item">
+                    <span class="key">↑↓←→</span>
+                    <span class="description">プレイヤーの移動</span>
+                </div>
+                <div class="control-item">
+                    <span class="key">スペース</span>
+                    <span class="description">時を止める</span>
+                </div>
+            </div>
+            <div class="game-description">
+                敵を避けながら進み、ボスと戦おう！<br>
+                時を止める能力を使って、ピンチを切り抜けろ！
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3><i class="fas fa-sliders"></i> ゲーム設定</h3>
+            <div class="setting-item">
+                <label><i class="fas fa-users"></i> 最大敵数:</label>
+                <input type="range" id="maxEnemies" min="5" max="15" value="10">
+                <span id="maxEnemiesValue">10</span>
+            </div>
+            <div class="setting-item">
+                <label><i class="fas fa-running"></i> 敵の速度:</label>
+                <input type="range" id="enemySpeed" min="1" max="3" step="0.5" value="2">
+                <span id="enemySpeedValue">2</span>
+            </div>
+            <div class="setting-item">
+                <label><i class="fas fa-meteor"></i> 弾の速度:</label>
+                <input type="range" id="bulletSpeed" min="3" max="7" step="0.5" value="5">
+                <span id="bulletSpeedValue">5</span>
+            </div>
+            <div class="setting-item">
+                <label><i class="fas fa-stopwatch"></i> ボス滞在時間:</label>
+                <input type="range" id="bossStayTime" min="5" max="15" value="10">
+                <span id="bossStayTimeValue">10秒</span>
+            </div>
+            <div class="setting-item">
+                <label><i class="fas fa-heart"></i> プレイヤーライフ:</label>
+                <input type="range" id="playerLife" min="1" max="5" value="3">
+                <span id="playerLifeValue">3</span>
+            </div>
+            <div class="setting-item difficulty-display">
+                <label><i class="fas fa-star"></i> 現在の難易度:</label>
+                <span id="difficultyLevel" class="difficulty-level">普通</span>
+            </div>
+        </div>
+        <button id="startGame"><i class="fas fa-play"></i> ゲームスタート</button>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html> 

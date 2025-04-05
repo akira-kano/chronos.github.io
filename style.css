@@ -1,0 +1,368 @@
+/* 基本設定 */
+:root {
+    --color-dark: #1a1a1a;
+    --color-dark-gray: #2d2d2d;
+    --color-blue: #1e3a8a;
+    --color-purple: #4c1d95;
+    --color-gold: #b8860b;
+    --color-silver: #c0c0c0;
+    --color-text: #ffffff;
+    --color-text-secondary: #cccccc;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background-color: var(--color-dark);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+/* ヒーローヘッダー */
+.hero {
+    height: 100vh;
+    background-image: url('img/end01.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 2rem;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    animation: fadeInUp 1s ease-out;
+}
+
+.hero .subtitle {
+    font-size: 2rem;
+    color: var(--color-gold);
+    margin-bottom: 1rem;
+    animation: fadeInUp 1s ease-out 0.3s backwards;
+}
+
+.hero .catchphrase {
+    font-size: 1.5rem;
+    color: var(--color-silver);
+    animation: fadeInUp 1s ease-out 0.6s backwards;
+}
+
+/* セクション共通 */
+section {
+    padding: 5rem 2rem;
+}
+
+h2 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: var(--color-gold);
+}
+
+/* 世界観セクション */
+.world-view {
+    background-color: var(--color-dark-gray);
+}
+
+.world-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.world-image img {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.world-text p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+/* キーワードセクション */
+.keyword-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.keyword-item {
+    background-color: var(--color-dark-gray);
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.keyword-item:hover {
+    transform: translateY(-10px);
+}
+
+.keyword-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.keyword-item h3 {
+    color: var(--color-gold);
+    margin-bottom: 0.5rem;
+}
+
+/* キャラクター紹介 */
+.character-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.character-item {
+    background-color: var(--color-dark-gray);
+    padding: 1.5rem;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.character-item:hover {
+    transform: translateY(-10px);
+}
+
+.character-item img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.character-item h3 {
+    color: var(--color-gold);
+    margin-bottom: 0.5rem;
+}
+
+/* プロローグ */
+.prologue {
+    background-color: var(--color-dark-gray);
+    text-align: center;
+}
+
+.prologue-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.prologue-content p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+/* ギャラリー */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gallery-grid img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 5px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery-grid img:hover {
+    transform: scale(1.05);
+}
+
+/* ゲーム */
+.games {
+    background-color: var(--color-dark-gray);
+}
+
+.games-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.game-item {
+    background-color: var(--color-dark);
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.game-item h3 {
+    color: var(--color-gold);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.game-item p {
+    margin-bottom: 1.5rem;
+    color: var(--color-text-secondary);
+}
+
+.game-screenshots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.game-screenshots img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.game-screenshots img:hover {
+    transform: scale(1.05);
+}
+
+.game-link {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background-color: var(--color-gold);
+    color: var(--color-dark);
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: transform 0.3s ease;
+}
+
+.game-link:hover {
+    transform: translateY(-3px);
+    background-color: var(--color-silver);
+}
+
+/* 発売情報 */
+.release-info {
+    background-color: var(--color-dark-gray);
+    text-align: center;
+}
+
+.release-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.release-content p {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.sns-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.sns-link {
+    color: var(--color-text);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-gold);
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.sns-link:hover {
+    background-color: var(--color-gold);
+    color: var(--color-dark);
+}
+
+/* フッター */
+footer {
+    background-color: var(--color-dark-gray);
+    text-align: center;
+    padding: 2rem;
+}
+
+/* アニメーション */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 3rem;
+    }
+
+    .hero .subtitle {
+        font-size: 1.5rem;
+    }
+
+    .hero .catchphrase {
+        font-size: 1.2rem;
+    }
+
+    .world-content {
+        grid-template-columns: 1fr;
+    }
+
+    .game-screenshots {
+        grid-template-columns: 1fr;
+    }
+
+    section {
+        padding: 3rem 1rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+} 

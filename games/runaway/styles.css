@@ -1,0 +1,454 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #000;
+    background-image: 
+        radial-gradient(circle at 50% 50%, rgba(76, 0, 255, 0.1) 0%, transparent 60%),
+        linear-gradient(45deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 50, 0.8) 100%);
+    flex-direction: column;
+    gap: 20px;
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #fff;
+}
+
+.game-container {
+    position: relative;
+    display: none;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+#gameCanvas {
+    border: 2px solid #333;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.game-info {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 18px;
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+#score, #life {
+    margin: 5px 0;
+}
+
+.settings-panel {
+    background-color: rgba(20, 20, 40, 0.9);
+    padding: 30px;
+    border-radius: 15px;
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.title-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title-section h1 {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: #4df;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+    margin-bottom: 10px;
+}
+
+.title-section h1 i {
+    margin-right: 10px;
+    color: #4df;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.title-section h2 {
+    font-size: 1.2em;
+    color: #adf;
+    font-weight: normal;
+}
+
+.instructions {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.instructions h3 {
+    color: #4df;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.instructions h3 i {
+    margin-right: 10px;
+    color: #4df;
+}
+
+.control-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.key {
+    background-color: rgba(0, 255, 255, 0.1);
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    min-width: 80px;
+    text-align: center;
+}
+
+.description {
+    color: #bdf;
+}
+
+.game-description {
+    text-align: center;
+    line-height: 1.6;
+    color: #9bf;
+    font-size: 0.9em;
+    margin-top: 20px;
+}
+
+.settings-section {
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.settings-section h3 {
+    color: #4df;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.settings-section h3 i {
+    margin-right: 10px;
+    color: #4df;
+}
+
+.setting-item {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.setting-item label {
+    min-width: 150px;
+    color: #7a7a7a;
+}
+
+.setting-item label i {
+    margin-right: 8px;
+    width: 20px;
+    color: #4df;
+}
+
+.setting-item input[type="range"] {
+    flex: 1;
+    max-width: 200px;
+}
+
+.setting-item span {
+    min-width: 50px;
+    text-align: right;
+}
+
+.difficulty-display {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+}
+
+.difficulty-level {
+    font-weight: bold;
+    color: #2196F3;
+    font-size: 1.2em;
+    text-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+}
+
+#startGame {
+    width: 100%;
+    padding: 15px;
+    margin-top: 15px;
+    background: linear-gradient(45deg, #2196F3, #00BCD4);
+    border: none;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+#startGame:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+}
+
+#startGame:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 255, 255, 0.3);
+}
+
+#startGame i {
+    margin-right: 8px;
+    animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+/* モーダルウィンドウ */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(20, 20, 40, 0.95));
+    padding: 30px;
+    border-radius: 20px;
+    min-width: 320px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    animation: slideIn 0.3s ease-out;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, -60%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+    }
+}
+
+.result-info {
+    margin: 20px 0;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+    width: 100%;
+}
+
+.result-info p {
+    margin: 10px 0;
+    font-size: 1.2em;
+    color: #bdf;
+}
+
+.result-info p i {
+    margin-right: 10px;
+    width: 20px;
+    color: #4df;
+}
+
+.result-info span {
+    font-weight: bold;
+    color: #4df;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+#resultTitle {
+    color: #4df;
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    width: 100%;
+    text-align: center;
+}
+
+.new-record-badge {
+    display: none;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    color: #000;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    margin: 15px auto;
+    animation: glow 1s ease-in-out infinite alternate;
+}
+
+.new-record-badge i {
+    margin-right: 5px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.share-buttons {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.share-button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.share-button.twitter {
+    background: linear-gradient(45deg, #1da1f2, #0d8ecf);
+    color: white;
+}
+
+.share-button.line {
+    background: linear-gradient(45deg, #00b900, #008e00);
+    color: white;
+}
+
+.share-button i {
+    margin-right: 8px;
+}
+
+.modal-buttons {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.modal-buttons button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    background: linear-gradient(45deg, #2196F3, #00BCD4);
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.modal-buttons button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+}
+
+.modal-buttons button i {
+    margin-right: 8px;
+}
+
+@keyframes glow {
+    from {
+        box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #e60073;
+    }
+    to {
+        box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #e60073;
+    }
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.action-button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.action-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+}
+
+.action-button.retry {
+    background: linear-gradient(45deg, #2196F3, #00BCD4);
+    color: white;
+}
+
+.action-button.settings {
+    background: linear-gradient(45deg, #607D8B, #455A64);
+    color: white;
+}
+
+#best-score {
+    color: #4df;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+    font-weight: bold;
+} 
