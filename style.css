@@ -365,4 +365,45 @@ footer {
     h2 {
         font-size: 2rem;
     }
+}
+
+.kindle-link-container {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.kindle-link {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    background: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 100%);
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.kindle-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #2447a0 0%, #5a24b0 100%);
+}
+
+.kindle-link i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--color-gold);
+}
+
+.kindle-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+}
+
+.kindle-subtitle {
+    font-size: 0.9rem;
+    color: var(--color-silver);
 } 

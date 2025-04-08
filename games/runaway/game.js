@@ -541,14 +541,14 @@ class Game {
 // SNS共有機能を更新
 function shareOnTwitter() {
     const text = `クロノスサーガで${document.getElementById('finalScore').textContent}点を達成！${document.getElementById('newRecordBadge').style.display === 'inline-block' ? '【新記録達成！】' : ''} レベル${window.game.difficulty + 1}（${window.game.gameDifficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
-    const url = 'https://example.com/chronos-saga';
+    const url = 'https://akira-kano.github.io/chronos24/games/runaway/index.html';
     const hashtags = 'クロノスサーガ,ゲーム';
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtags)}`, '_blank');
 }
 
 function shareOnLine() {
     const text = `クロノスサーガで${document.getElementById('finalScore').textContent}点を達成！${document.getElementById('newRecordBadge').style.display === 'inline-block' ? '【新記録達成！】' : ''} レベル${window.game.difficulty + 1}（${window.game.gameDifficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
-    const url = 'https://example.com/chronos-saga';
+    const url = 'https://akira-kano.github.io/chronos24/games/runaway/index.html';
     window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
 }
 
