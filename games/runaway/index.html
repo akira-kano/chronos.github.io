@@ -38,21 +38,23 @@
                 <p><i class="fas fa-trophy"></i> ベストスコア: <span id="bestScore"></span></p>
                 <span id="newRecordBadge" class="new-record-badge"><i class="fas fa-crown"></i> 新記録！</span>
             </div>
-            <div class="share-buttons">
-                <button onclick="shareOnTwitter()" class="share-button twitter">
-                    <i class="fab fa-twitter"></i> X(Twitter)でシェア
-                </button>
-                <button onclick="shareOnLine()" class="share-button line">
-                    <i class="fab fa-line"></i> LINEでシェア
-                </button>
-            </div>
-            <div class="modal-buttons">
-                <button onclick="retryGame()">
-                    <i class="fas fa-redo"></i> <span id="retryButtonText">リトライ</span>
-                </button>
-                <button onclick="document.getElementById('resultModal').style.display='none'">
-                    <i class="fas fa-cog"></i> 設定に戻る
-                </button>
+            <div class="share-buttons-and-actions">
+                <div class="share-buttons">
+                    <button onclick="shareOnTwitter()" class="share-button twitter">
+                        <i class="fab fa-twitter"></i> X(Twitter)でシェア
+                    </button>
+                    <button onclick="shareOnLine()" class="share-button line">
+                        <i class="fab fa-line"></i> LINEでシェア
+                    </button>
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="retryGame()">
+                        <i class="fas fa-redo"></i> <span id="retryButtonText">リトライ</span>
+                    </button>
+                    <button onclick="document.getElementById('resultModal').style.display='none'">
+                        <i class="fas fa-cog"></i> 設定に戻る
+                    </button>
+                </div>
             </div>
         </div>
     </div>

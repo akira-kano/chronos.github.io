@@ -87,7 +87,10 @@ class Game {
         
         // ベストスコアの読み込み
         this.bestScore = parseInt(localStorage.getItem('bestScore')) || 0;
-        document.getElementById('best-score').innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
+        const bestScoreElement = document.getElementById('best-score');
+        if (bestScoreElement) {
+            bestScoreElement.innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
+        }
         
         // スコア倍率の設定（難易度とレベルの両方を考慮）
         this.scoreMultiplier = this.calculateScoreMultiplier(difficulty);
@@ -129,9 +132,13 @@ class Game {
     
     // ゲーム情報の更新
     updateGameInfo() {
-        document.getElementById('score').innerHTML = `<i class="fas fa-star"></i> スコア: ${this.score}`;
-        document.getElementById('life').innerHTML = `<i class="fas fa-heart"></i> ライフ: ${this.player.life}`;
-        document.getElementById('best-score').innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
+        const scoreEl = document.getElementById('score');
+        const lifeEl = document.getElementById('life');
+        const bestScoreEl = document.getElementById('best-score');
+        
+        if (scoreEl) scoreEl.innerHTML = `<i class="fas fa-star"></i> スコア: ${this.score}`;
+        if (lifeEl) lifeEl.innerHTML = `<i class="fas fa-heart"></i> ライフ: ${this.player.life}`;
+        if (bestScoreEl) bestScoreEl.innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
     }
 
     calculateScoreMultiplier(difficulty) {
@@ -542,6 +549,7 @@ class Game {
         const finalScore = document.getElementById('finalScore');
         const bestScore = document.getElementById('bestScore');
         const newRecordBadge = document.getElementById('newRecordBadge');
+        const modalContent = document.querySelector('.modal-content');
 
         // レベルと難易度の表示
         finalLevel.textContent = `${this.difficulty + 1}`;
@@ -576,6 +584,19 @@ class Game {
             bestScore.textContent = this.bestScore;
         } else {
             newRecordBadge.style.display = 'none';
+        }
+
+        // レイアウトをリセット（横持ち用のスタイルを適用するためのトリガー）
+        if (modalContent) {
+            // 強制的にレイアウトを更新するためのトリック
+            void modalContent.offsetWidth;
+            
+            // 横向きかどうかを確認して適切なクラスを設定
+            if (window.innerWidth > window.innerHeight) {
+                modalContent.classList.add('landscape-layout');
+            } else {
+                modalContent.classList.remove('landscape-layout');
+            }
         }
 
         // モーダルの表示
@@ -831,16 +852,46 @@ class Game {
 
 // SNS共有機能を更新
 function shareOnTwitter() {
-    const text = `クロノスサーガで${document.getElementById('finalScore').textContent}点を達成！${document.getElementById('newRecordBadge').style.display === 'inline-block' ? '【新記録達成！】' : ''} レベル${window.game.difficulty + 1}（${window.game.gameDifficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
+    const finalScore = document.getElementById('finalScore');
+    const newRecordBadge = document.getElementById('newRecordBadge');
+    let text = 'クロノスサーガを遊びました！時を止めて敵を回避するアクションゲーム！';
+    
+    if (window.game && finalScore) {
+        text = `クロノスサーガで${finalScore.textContent}点を達成！` +
+               `${newRecordBadge && newRecordBadge.style.display === 'inline-block' ? '【新記録達成！】' : ''}` +
+               ` レベル${window.game.difficulty + 1}（${window.game.gameDifficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
+    }
+    
     const url = 'https://akira-kano.github.io/chronos24/games/runaway/index.html';
     const hashtags = 'クロノスサーガ,ゲーム';
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtags)}`, '_blank');
 }
 
 function shareOnLine() {
-    const text = `クロノスサーガで${document.getElementById('finalScore').textContent}点を達成！${document.getElementById('newRecordBadge').style.display === 'inline-block' ? '【新記録達成！】' : ''} レベル${window.game.difficulty + 1}（${window.game.gameDifficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
+    const finalScore = document.getElementById('finalScore');
+    const newRecordBadge = document.getElementById('newRecordBadge');
+    let text = 'クロノスサーガを遊びました！時を止めて敵を回避するアクションゲーム！';
+    
+    if (window.game && finalScore) {
+        text = `クロノスサーガで${finalScore.textContent}点を達成！` +
+               `${newRecordBadge && newRecordBadge.style.display === 'inline-block' ? '【新記録達成！】' : ''}` +
+               ` レベル${window.game.difficulty + 1}（${window.game.gameDifficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
+    }
+    
     const url = 'https://akira-kano.github.io/chronos24/games/runaway/index.html';
     window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+}
+
+// リトライ処理の追加（HTML側から呼び出されるグローバル関数）
+function retryGame() {
+    if (window.game) {
+        const modal = document.getElementById('resultModal');
+        if (modal) modal.style.display = 'none';
+        
+        const isCleared = window.game.isGameCleared;
+        const newDifficulty = window.game.difficulty + (isCleared ? 1 : 0);
+        window.game.retry(newDifficulty);
+    }
 }
 
 window.onload = () => {

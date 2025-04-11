@@ -40,10 +40,15 @@ body {
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 18px;
     text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 5px 10px;
+    border-radius: 5px;
 }
 
-#score, #life {
+#score, #life, #best-score {
     margin: 5px 0;
+    white-space: nowrap;
 }
 
 .settings-panel {
@@ -322,6 +327,13 @@ body {
     text-align: center;
 }
 
+.share-buttons-and-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .new-record-badge {
     display: none;
     background: linear-gradient(45deg, #FFD700, #FFA500);
@@ -508,10 +520,13 @@ body {
         border-radius: 8px;
         padding: 8px;
         font-size: 0.9rem;
+        z-index: 100;
+        max-width: 70%;
     }
     
     .game-info div {
         margin-bottom: 5px;
+        white-space: nowrap;
     }
     
     .settings-panel {
@@ -585,37 +600,6 @@ body {
         margin-bottom: 10px; /* ボタン間の余白を追加 */
     }
     
-    /* 横向き時の特別な調整 */
-    @media (orientation: landscape) {
-        .modal-content {
-            padding: 10px;
-            max-height: 85vh; /* 横向き時はさらに小さく */
-        }
-        
-        .result-info {
-            padding: 10px;
-            margin: 10px 0;
-        }
-        
-        .result-info p {
-            margin: 5px 0;
-            font-size: 1em;
-        }
-        
-        #resultTitle {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-        
-        .share-buttons {
-            margin: 10px 0;
-        }
-        
-        .modal-buttons {
-            margin-top: 10px;
-        }
-    }
-    
     /* タッチ操作の説明を追加 */
     .touch-controls-info {
         display: block;
@@ -675,12 +659,147 @@ body {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(90deg); }
     }
+}
+
+/* 横持ち用のレイアウトクラス - JavaScriptで追加 */
+.modal-content.landscape-layout {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    padding: 10px;
+    max-height: 85vh;
+}
+
+.modal-content.landscape-layout #resultTitle {
+    width: 100% !important;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.modal-content.landscape-layout .result-info {
+    width: 48% !important;
+    box-sizing: border-box;
+    overflow-y: auto;
+    max-height: 65vh;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.modal-content.landscape-layout .result-info p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    text-align: left;
+}
+
+.modal-content.landscape-layout .share-buttons-and-actions {
+    width: 48% !important;
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+    justify-content: center;
+}
+
+.modal-content.landscape-layout .share-buttons {
+    margin: 0 0 10px 0;
+    width: 100%;
+    flex-direction: column !important;
+}
+
+.modal-content.landscape-layout .share-button {
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.modal-content.landscape-layout .modal-buttons {
+    margin-top: 10px;
+    width: 100%;
+    flex-direction: column !important;
+}
+
+.modal-content.landscape-layout .modal-buttons button {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.modal-content.landscape-layout .new-record-badge {
+    margin: 5px auto;
+    font-size: 0.9em;
+    padding: 5px 10px;
+}
+
+/* 横持ち時の特別な調整（横向きのモバイルデバイス用） */
+@media (max-width: 768px) and (orientation: landscape) {
+    .modal-content {
+        padding: 10px;
+        max-height: 85vh; /* 横向き時はさらに小さく */
+        flex-direction: row !important; /* 横向きレイアウトに変更（優先度を上げる） */
+        flex-wrap: wrap !important; /* 必要に応じて折り返し（優先度を上げる） */
+        justify-content: space-between !important; /* 左右に分ける（優先度を上げる） */
+        align-items: flex-start !important; /* 上揃え（優先度を上げる） */
+    }
     
-    /* モバイルデバイスの縦向きの場合のみ表示 */
-    @media (orientation: portrait) {
-        /* モバイルデバイスでのみ表示する */
-        .orientation-message.mobile-only {
-            display: flex;
-        }
+    #resultTitle {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+        width: 100% !important; /* タイトルだけは全幅（優先度を上げる） */
+    }
+    
+    .result-info {
+        padding: 10px;
+        margin: 10px 0;
+        width: 48% !important; /* 左側に配置（優先度を上げる） */
+        box-sizing: border-box;
+        overflow-y: auto; /* 情報が多い場合にスクロール */
+        max-height: 65vh; /* 高さ制限 */
+    }
+    
+    .result-info p {
+        margin: 5px 0;
+        font-size: 0.9em;
+        text-align: left;
+    }
+    
+    .new-record-badge {
+        margin: 5px auto;
+        font-size: 0.9em;
+        padding: 5px 10px;
+    }
+    
+    .share-buttons-and-actions {
+        width: 48% !important; /* 右側に配置（優先度を上げる） */
+        display: flex;
+        flex-direction: column;
+        margin: 10px 0;
+        justify-content: center; /* 中央揃え */
+    }
+    
+    .share-buttons {
+        margin: 0 0 10px 0;
+        width: 100%;
+        flex-direction: column !important; /* ボタンを縦に並べる（優先度を上げる） */
+    }
+    
+    .share-button {
+        margin-bottom: 10px;
+        width: 100%;
+    }
+    
+    .modal-buttons {
+        margin-top: 10px;
+        width: 100%;
+        flex-direction: column !important; /* ボタンを縦に並べる（優先度を上げる） */
+    }
+    
+    .modal-buttons button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+/* モバイルデバイスの縦向きの場合のみ表示 */
+@media (max-width: 768px) and (orientation: portrait) {
+    .orientation-message.mobile-only {
+        display: flex;
     }
 } 
