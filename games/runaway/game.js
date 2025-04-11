@@ -568,6 +568,28 @@ class Game {
             return;
         }
         
+        // AndroidのChromeで全画面時にモーダルが表示されない問題への対応
+        if (this.isAndroidChrome()) {
+            // モーダルのz-indexを非常に高く設定
+            modal.style.zIndex = '10000';
+            
+            // AndroidのChromeでのレンダリングを強制
+            document.body.appendChild(modal);
+            void modal.offsetWidth;
+            
+            // モーダルを最前面に配置するためのスタイル調整
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            
+            // 全画面モードからの終了後に適切に表示されるように
+            setTimeout(() => {
+                modal.style.display = 'block';
+            }, 100);
+        }
+        
         // レベルと難易度の表示
         if (finalLevel) finalLevel.textContent = `${this.difficulty + 1}`;
         if (finalDifficulty) finalDifficulty.textContent = this.gameDifficulty.level;
@@ -736,12 +758,46 @@ class Game {
 
     gameOver() {
         this.isGameOver = true;
-        this.showResultModal(false);
+        // 全画面モードを終了してからモーダルを表示
+        this.exitFullscreenIfNeeded().then(() => {
+            this.showResultModal(false);
+        });
     }
 
     gameCleared() {
         this.isGameCleared = true;
-        this.showResultModal(true);
+        // 全画面モードを終了してからモーダルを表示
+        this.exitFullscreenIfNeeded().then(() => {
+            this.showResultModal(true);
+        });
+    }
+    
+    // 全画面モードの終了処理（AndroidのChrome対策）
+    exitFullscreenIfNeeded() {
+        return new Promise((resolve) => {
+            // Androidのブラウザで全画面モードの場合
+            if (this.isAndroidChrome() && document.fullscreenElement) {
+                // 全画面モードを終了
+                document.exitFullscreen()
+                    .then(() => {
+                        // 少し待ってからリソルブ
+                        setTimeout(resolve, 300);
+                    })
+                    .catch((err) => {
+                        console.error('全画面解除エラー:', err);
+                        // エラーが発生しても続行
+                        resolve();
+                    });
+            } else {
+                // 全画面でない場合はすぐに解決
+                resolve();
+            }
+        });
+    }
+    
+    // AndroidのChromeかどうかの判定
+    isAndroidChrome() {
+        return /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
     }
 
     retry(newDifficulty = this.difficulty) {
@@ -998,13 +1054,59 @@ function retryGame() {
             // モーダルを非表示
             modal.style.display = 'none';
             
+            // AndroidのChromeの場合は特別な処理を追加
+            if (window.game.isAndroidChrome()) {
+                // モーダルを完全に非表示に
+                modal.style.opacity = '0';
+                modal.style.visibility = 'hidden';
+                
+                // z-indexを元に戻す（他の要素がクリックできるように）
+                setTimeout(() => {
+                    modal.style.zIndex = '1000';
+                }, 100);
+            }
+            
             // 少し遅延させてからゲームを再開（AndroidのChromeの問題対策）
             setTimeout(() => {
                 const isCleared = window.game.isGameCleared;
                 const newDifficulty = window.game.difficulty + (isCleared ? 1 : 0);
                 window.game.retry(newDifficulty);
-            }, 50);
+            }, 100);
         }
+    }
+}
+
+// 設定画面に戻るグローバル関数
+function backToSettings() {
+    const modal = document.getElementById('resultModal');
+    if (modal) {
+        // モーダルを非表示
+        modal.style.display = 'none';
+        
+        // AndroidのChromeの場合は特別な処理を追加
+        if (window.game && window.game.isAndroidChrome()) {
+            // モーダルを完全に非表示に
+            modal.style.opacity = '0';
+            modal.style.visibility = 'hidden';
+            
+            // z-indexを元に戻す（他の要素がクリックできるように）
+            setTimeout(() => {
+                modal.style.zIndex = '1000';
+            }, 100);
+        }
+        
+        // 少し遅延させてから設定画面を表示（AndroidのChromeの問題対策）
+        setTimeout(() => {
+            if (window.game) {
+                window.game.showSettings();
+            } else {
+                // ゲームインスタンスがない場合は直接表示を切り替え
+                const gameContainer = document.querySelector('.game-container');
+                const settingsPanel = document.querySelector('.settings-panel');
+                if (gameContainer) gameContainer.style.display = 'none';
+                if (settingsPanel) settingsPanel.style.display = 'block';
+            }
+        }, 100);
     }
 }
 
@@ -1036,6 +1138,7 @@ window.onload = () => {
         
         // モバイルデバイスの判定
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
         
         // モバイルデバイスの場合のみ、画面の向きチェックとフルスクリーン試行
         if (isMobile) {
@@ -1045,8 +1148,9 @@ window.onload = () => {
             }
             
             // フルスクリーンモードを試みる
+            // AndroidのChromeでは全画面モードに制限があるためiOSなど他の環境のみ適用
             const gameContainer = document.querySelector('.game-container');
-            if (gameContainer.requestFullscreen) {
+            if (!isAndroid && gameContainer.requestFullscreen) {
                 gameContainer.requestFullscreen().catch(err => {
                     console.log('フルスクリーン切替エラー:', err);
                 });
@@ -1228,26 +1332,4 @@ window.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-});
-
-// 設定画面に戻るグローバル関数
-function backToSettings() {
-    const modal = document.getElementById('resultModal');
-    if (modal) {
-        // モーダルを非表示
-        modal.style.display = 'none';
-        
-        // 少し遅延させてから設定画面を表示（AndroidのChromeの問題対策）
-        setTimeout(() => {
-            if (window.game) {
-                window.game.showSettings();
-            } else {
-                // ゲームインスタンスがない場合は直接表示を切り替え
-                const gameContainer = document.querySelector('.game-container');
-                const settingsPanel = document.querySelector('.settings-panel');
-                if (gameContainer) gameContainer.style.display = 'none';
-                if (settingsPanel) settingsPanel.style.display = 'block';
-            }
-        }, 50);
-    }
-} 
+}); 
