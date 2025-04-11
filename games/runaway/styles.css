@@ -564,6 +564,8 @@ body {
         width: 95%;
         padding: 15px;
         max-width: 95%;
+        max-height: 90vh; /* 画面の高さの90%までに制限 */
+        overflow-y: auto; /* 内容が収まらない場合はスクロール可能に */
     }
     
     .share-buttons {
@@ -580,6 +582,38 @@ body {
     .modal-buttons button {
         padding: 8px 15px;
         font-size: 0.9rem;
+        margin-bottom: 10px; /* ボタン間の余白を追加 */
+    }
+    
+    /* 横向き時の特別な調整 */
+    @media (orientation: landscape) {
+        .modal-content {
+            padding: 10px;
+            max-height: 85vh; /* 横向き時はさらに小さく */
+        }
+        
+        .result-info {
+            padding: 10px;
+            margin: 10px 0;
+        }
+        
+        .result-info p {
+            margin: 5px 0;
+            font-size: 1em;
+        }
+        
+        #resultTitle {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .share-buttons {
+            margin: 10px 0;
+        }
+        
+        .modal-buttons {
+            margin-top: 10px;
+        }
     }
     
     /* タッチ操作の説明を追加 */

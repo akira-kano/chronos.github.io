@@ -1,4 +1,3 @@
-// 難易度計算用のユーティリティ関数
 function calculateDifficultyLevel(settings) {
     const defaultSettings = {
         maxEnemies: 10,
@@ -266,7 +265,7 @@ class Game {
                 }
                 
                 // 仮想キー状態の更新
-                const moveRatio = 0.5; // 移動の感度調整
+                const moveRatio = 0.3; // 移動の感度調整 (0.5から0.3に下げて感度を上げる)
                 this.keys['ArrowRight'] = dx > 10 * moveRatio;
                 this.keys['ArrowLeft'] = dx < -10 * moveRatio;
                 this.keys['ArrowDown'] = dy > 10 * moveRatio;
