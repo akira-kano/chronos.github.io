@@ -105,27 +105,27 @@
             <h3><i class="fas fa-sliders-h"></i> ゲーム設定</h3>
             <div class="setting-item">
                 <label><i class="fas fa-users"></i> 最大敵数:</label>
-                <input type="range" id="maxEnemies" min="5" max="15" value="10">
+                <input type="range" id="maxEnemies" min="5" max="15" value="10" data-setting="true">
                 <span id="maxEnemiesValue">10</span>
             </div>
             <div class="setting-item">
                 <label><i class="fas fa-running"></i> 敵の速度:</label>
-                <input type="range" id="enemySpeed" min="1" max="3" step="0.5" value="2">
+                <input type="range" id="enemySpeed" min="1" max="3" step="0.5" value="2" data-setting="true">
                 <span id="enemySpeedValue">2</span>
             </div>
             <div class="setting-item">
                 <label><i class="fas fa-meteor"></i> 弾の速度:</label>
-                <input type="range" id="bulletSpeed" min="3" max="7" step="0.5" value="5">
+                <input type="range" id="bulletSpeed" min="3" max="7" step="0.5" value="5" data-setting="true">
                 <span id="bulletSpeedValue">5</span>
             </div>
             <div class="setting-item">
                 <label><i class="fas fa-stopwatch"></i> ボス滞在時間:</label>
-                <input type="range" id="bossStayTime" min="5" max="15" value="10">
+                <input type="range" id="bossStayTime" min="5" max="15" value="10" data-setting="true">
                 <span id="bossStayTimeValue">10秒</span>
             </div>
             <div class="setting-item">
                 <label><i class="fas fa-heart"></i> プレイヤーライフ:</label>
-                <input type="range" id="playerLife" min="1" max="5" value="3">
+                <input type="range" id="playerLife" min="1" max="5" value="3" data-setting="true">
                 <span id="playerLifeValue">3</span>
             </div>
             <div class="setting-item difficulty-display">
@@ -165,6 +165,21 @@
                     // PCの場合は完全に非表示
                     orientationMessage.style.display = 'none';
                 }
+            }
+            
+            // モバイルデバイスの場合、スライダーのタッチイベント処理を強化
+            if (isMobileDevice()) {
+                const sliders = document.querySelectorAll('input[type="range"][data-setting="true"]');
+                sliders.forEach(slider => {
+                    // タッチ操作時の設定更新処理を強化
+                    slider.addEventListener('touchmove', function() {
+                        const id = this.id;
+                        const valueSpan = document.getElementById(id + 'Value');
+                        if (valueSpan) {
+                            valueSpan.textContent = id === 'bossStayTime' ? this.value + '秒' : this.value;
+                        }
+                    });
+                });
             }
         });
     </script>

@@ -991,36 +991,38 @@ window.onload = () => {
 // 設定値の変更を監視して難易度を更新
 function updateDifficulty() {
     const settings = {
-        maxEnemies: parseInt(document.getElementById('maxEnemies').value),
-        enemySpeed: parseFloat(document.getElementById('enemySpeed').value),
-        bulletSpeed: parseFloat(document.getElementById('bulletSpeed').value),
-        bossStayTime: parseInt(document.getElementById('bossStayTime').value),
-        playerLife: parseInt(document.getElementById('playerLife').value)
+        maxEnemies: parseInt(document.getElementById('maxEnemies').value) || 10,
+        enemySpeed: parseFloat(document.getElementById('enemySpeed').value) || 2,
+        bulletSpeed: parseFloat(document.getElementById('bulletSpeed').value) || 5,
+        bossStayTime: parseInt(document.getElementById('bossStayTime').value) || 10,
+        playerLife: parseInt(document.getElementById('playerLife').value) || 3
     };
 
     const difficulty = calculateDifficultyLevel(settings);
     
     // 難易度表示を更新
     const difficultyElement = document.getElementById('difficultyLevel');
-    difficultyElement.textContent = difficulty.level;
-    
-    // 難易度に応じて色を変更
-    switch(difficulty.level) {
-        case 'スーパーハード':
-            difficultyElement.style.color = '#ff0000';
-            break;
-        case 'ハード':
-            difficultyElement.style.color = '#ff6600';
-            break;
-        case '普通':
-            difficultyElement.style.color = '#2196F3';
-            break;
-        case 'イージー':
-            difficultyElement.style.color = '#00cc00';
-            break;
-        case 'スーパーイージー':
-            difficultyElement.style.color = '#009900';
-            break;
+    if (difficultyElement) {
+        difficultyElement.textContent = difficulty.level;
+        
+        // 難易度に応じて色を変更
+        switch(difficulty.level) {
+            case 'スーパーハード':
+                difficultyElement.style.color = '#ff0000';
+                break;
+            case 'ハード':
+                difficultyElement.style.color = '#ff6600';
+                break;
+            case '普通':
+                difficultyElement.style.color = '#2196F3';
+                break;
+            case 'イージー':
+                difficultyElement.style.color = '#00cc00';
+                break;
+            case 'スーパーイージー':
+                difficultyElement.style.color = '#009900';
+                break;
+        }
     }
 }
 
@@ -1028,21 +1030,37 @@ function updateDifficulty() {
 function updateSettingValue(id) {
     const input = document.getElementById(id);
     const valueSpan = document.getElementById(id + 'Value');
-    valueSpan.textContent = id === 'bossStayTime' ? input.value + '秒' : input.value;
+    if (input && valueSpan) {
+        valueSpan.textContent = id === 'bossStayTime' ? input.value + '秒' : input.value;
+    }
 }
 
 // 全ての設定項目にイベントリスナーを追加
-document.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', function() {
     const settingIds = ['maxEnemies', 'enemySpeed', 'bulletSpeed', 'bossStayTime', 'playerLife'];
     
     settingIds.forEach(id => {
         const input = document.getElementById(id);
-        input.addEventListener('input', () => {
+        if (input) {
+            // inputイベントとchangeイベントの両方をリッスン（タッチデバイス対応）
+            input.addEventListener('input', () => {
+                updateSettingValue(id);
+                updateDifficulty();
+            });
+            input.addEventListener('change', () => {
+                updateSettingValue(id);
+                updateDifficulty();
+            });
+            
+            // タッチイベントもリッスン
+            input.addEventListener('touchend', () => {
+                updateSettingValue(id);
+                updateDifficulty();
+            });
+            
+            // 初期値を設定
             updateSettingValue(id);
-            updateDifficulty();
-        });
-        // 初期値を設定
-        updateSettingValue(id);
+        }
     });
     
     // 初期難易度を表示
