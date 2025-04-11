@@ -292,9 +292,12 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.7);
     z-index: 1000;
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.5s ease-in-out;
+    backdrop-filter: blur(5px);
+    box-sizing: border-box;
+    padding: 10px;
 }
 
 @keyframes fadeIn {
@@ -307,24 +310,27 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: linear-gradient(135deg, rgba(30, 30, 60, 0.95), rgba(20, 20, 40, 0.95));
-    padding: 30px;
+    width: 80%;
+    max-width: 620px; /* 横幅を最適化 */
+    background: linear-gradient(135deg, #12172e, #203354);
+    color: white;
+    padding: 25px 20px;
     border-radius: 20px;
-    min-width: 320px;
-    max-width: 650px;
-    width: 90%;
-    box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
-    border: 1px solid rgba(0, 255, 255, 0.1);
-    animation: slideIn 0.3s ease-out;
-    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 255, 0.3), 0 0 30px rgba(0, 183, 255, 0.2);
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
+    animation: slideIn 0.5s ease-out;
+    border: 1px solid rgba(77, 255, 255, 0.3);
+    max-height: 95vh;
+    overflow-y: auto;
+    box-sizing: border-box;
 }
 
 @keyframes slideIn {
     from {
-        transform: translate(-50%, -60%);
+        transform: translate(-50%, -55%);
         opacity: 0;
     }
     to {
@@ -334,38 +340,46 @@ body {
 }
 
 .result-info {
-    margin: 20px 0;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 20px;
-    border-radius: 10px;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: inset 0 0 15px rgba(0, 183, 255, 0.1);
 }
 
 .result-info p {
     margin: 10px 0;
     font-size: 1.2em;
-    color: #bdf;
+    text-align: center;
+    width: 100%;
 }
 
 .result-info p i {
     margin-right: 10px;
     width: 20px;
     color: #4df;
+    text-shadow: 0 0 10px rgba(77, 255, 255, 0.6);
 }
 
 .result-info span {
     font-weight: bold;
     color: #4df;
-    text-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
 }
 
 #resultTitle {
     color: #4df;
-    font-size: 2em;
+    font-size: 2.2em;
     margin-bottom: 20px;
-    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
     width: 100%;
     text-align: center;
+    font-weight: bold;
+    letter-spacing: 1px;
 }
 
 .share-buttons-and-actions {
@@ -373,21 +387,26 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 15px;
+    box-sizing: border-box; /* ボックスサイズを正確に計算 */
 }
 
 .new-record-badge {
     display: none;
     background: linear-gradient(45deg, #FFD700, #FFA500);
     color: #000;
-    padding: 8px 15px;
+    padding: 8px 20px;
     border-radius: 20px;
     font-weight: bold;
-    margin: 15px auto;
-    animation: glow 1s ease-in-out infinite alternate;
+    margin: 10px auto 20px;
+    animation: glow 1.2s ease-in-out infinite alternate;
+    font-size: 1.1em;
+    letter-spacing: 1px;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
 }
 
 .new-record-badge i {
-    margin-right: 5px;
+    margin-right: 8px;
     animation: spin 2s linear infinite;
 }
 
@@ -397,17 +416,17 @@ body {
 }
 
 .share-buttons {
-    margin: 20px 0;
+    margin: 10px 0 25px;
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     width: 100%;
 }
 
 .share-button {
-    padding: 12px 25px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
     font-size: 1.1em;
     font-weight: bold;
@@ -416,6 +435,7 @@ body {
     min-width: 220px;
     flex: 1;
     max-width: 250px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .share-button.twitter {
@@ -429,44 +449,76 @@ body {
 }
 
 .share-button i {
-    margin-right: 8px;
+    margin-right: 10px;
+}
+
+.share-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.share-button:active {
+    transform: translateY(1px);
 }
 
 .modal-buttons {
-    margin-top: 25px;
+    margin-top: 5px;
     display: flex;
     justify-content: center;
     gap: 20px;
     width: 100%;
+    border-top: 1px solid rgba(77, 255, 255, 0.2);
+    padding-top: 20px;
+    box-sizing: border-box; /* ボックスサイズを正確に計算 */
+    flex-wrap: wrap; /* 幅が足りない場合は折り返し */
 }
 
 .modal-buttons button {
-    padding: 12px 25px;
+    padding: 14px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
     font-size: 1.1em;
-    background: linear-gradient(45deg, #2196F3, #00BCD4);
-    color: white;
     font-weight: bold;
     transition: all 0.3s ease;
+    flex: 0 1 auto;
+    max-width: 280px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    min-width: 170px;
+    text-align: center;
+    box-sizing: border-box; /* ボックスサイズを正確に計算 */
+}
+
+.modal-buttons button:first-child {
+    background: linear-gradient(45deg, #2196F3, #00BCD4);
+    color: white;
+}
+
+.modal-buttons button:last-child {
+    background: linear-gradient(45deg, #607D8B, #455A64);
+    color: white;
 }
 
 .modal-buttons button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-buttons button:active {
+    transform: translateY(1px);
 }
 
 .modal-buttons button i {
-    margin-right: 8px;
+    margin-right: 10px;
 }
 
 @keyframes glow {
     from {
-        box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #e60073;
+        box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
     }
     to {
-        box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #e60073;
+        box-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700, 0 0 40px #e60073;
     }
 }
 
@@ -579,15 +631,64 @@ body {
         border-radius: 0;
     }
     
+    .title-section {
+        margin-bottom: 20px;
+    }
+    
     .title-section h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     .title-section h2 {
-        font-size: 1.2rem;
+        font-size: 1rem;
+    }
+    
+    .instructions {
+        padding: 15px;
+        margin-bottom: 20px;
     }
     
     .instructions h3,
+    .settings-section h3 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+    
+    .control-item {
+        margin-bottom: 8px;
+    }
+    
+    .key {
+        padding: 4px 8px;
+        font-size: 0.85rem;
+        min-width: 70px;
+    }
+    
+    .description {
+        font-size: 0.9rem;
+    }
+    
+    .settings-section {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .difficulty-display {
+        margin-top: 15px;
+        padding: 12px;
+    }
+    
+    .difficulty-level {
+        font-size: 1.1em;
+    }
+    
+    /* ゲームスタートボタンを調整 */
+    #startGame {
+        padding: 12px 0;
+        font-size: 1.1rem;
+        margin-top: 10px;
+    }
+    
     .settings-section h3 {
         font-size: 1.2rem;
     }
@@ -602,43 +703,54 @@ body {
     }
     
     .setting-item {
-        margin-bottom: 15px;
-        flex-wrap: wrap;
+        margin-bottom: 12px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 5px;
+        align-items: center;
     }
     
     .setting-item label {
         width: 100%;
-        display: block;
-        margin-bottom: 5px;
+        grid-column: 1 / 3;
+        grid-row: 1;
+        margin-bottom: 4px;
+        font-size: 0.95rem;
     }
     
     .setting-item input[type="range"] {
-        width: 80%;
-        height: 30px;
-        margin: 10px 0;
-    }
-    
-    .setting-item input[type="range"]::-webkit-slider-thumb {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .setting-item input[type="range"]::-moz-range-thumb {
-        width: 30px;
-        height: 30px;
+        width: 100%;
+        height: 22px;
+        margin: 0;
+        grid-column: 1;
+        grid-row: 2;
     }
     
     .setting-item span {
-        color: #4df;
-        font-weight: bold;
-        font-size: 1.1em;
-        margin-left: 10px;
+        grid-column: 2;
+        grid-row: 2;
+        width: auto;
+        min-width: 35px;
+        font-size: 0.95rem;
+        margin-left: 8px;
+        text-align: right;
+    }
+    
+    .setting-item input[type="range"]::-webkit-slider-thumb {
+        width: 22px;
+        height: 22px;
+    }
+    
+    .setting-item input[type="range"]::-moz-range-thumb {
+        width: 22px;
+        height: 22px;
     }
     
     /* モーダルウィンドウ */
     .modal-content {
         width: 95%;
-        padding: 15px;
+        padding: 20px;
         max-width: 95%;
         max-height: 90vh; /* 画面の高さの90%までに制限 */
         overflow-y: auto; /* 内容が収まらない場合はスクロール可能に */
@@ -646,19 +758,31 @@ body {
     
     .share-buttons {
         flex-direction: column;
+        gap: 10px;
     }
     
     .share-button {
-        margin-bottom: 10px;
+        margin-bottom: 5px;
         width: 100%;
         min-width: unset;
-        white-space: normal;
+        max-width: 100%;
+        white-space: nowrap;
+    }
+    
+    .modal-buttons {
+        flex-direction: row; /* 横並びに */
+        gap: 10px;
+        margin-top: 8px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(77, 255, 255, 0.2);
     }
     
     .modal-buttons button {
-        padding: 8px 15px;
-        font-size: 0.9rem;
-        margin-bottom: 10px; /* ボタン間の余白を追加 */
+        padding: 12px 15px;
+        font-size: 1rem;
+        flex: 1;
+        white-space: normal;
+        min-width: unset;
     }
     
     /* タッチ操作の説明を追加 */
@@ -684,12 +808,6 @@ body {
         align-items: center;
         justify-content: center;
         margin-right: 15px;
-    }
-    
-    /* ゲームスタートボタンを大きく */
-    #startGame {
-        padding: 15px 0;
-        font-size: 1.2rem;
     }
     
     /* 横向き推奨メッセージ */
@@ -724,137 +842,147 @@ body {
 
 /* 横持ち用のレイアウトクラス - JavaScriptで追加 */
 .modal-content.landscape-layout {
-    flex-direction: row !important;
-    flex-wrap: wrap !important;
-    justify-content: space-between !important;
-    align-items: flex-start !important;
-    padding: 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
     max-height: 85vh;
+    animation: none; /* アニメーションを無効化（位置ずれ防止） */
 }
 
 .modal-content.landscape-layout #resultTitle {
-    width: 100% !important;
-    font-size: 1.5em;
-    margin-bottom: 10px;
+    width: 100%;
+    font-size: 1.8em;
+    margin-bottom: 15px;
 }
 
 .modal-content.landscape-layout .result-info {
-    width: 48% !important;
+    width: 48%;
     box-sizing: border-box;
     overflow-y: auto;
     max-height: 65vh;
-    padding: 10px;
-    margin: 10px 0;
+    padding: 15px;
+    margin: 0;
 }
 
 .modal-content.landscape-layout .result-info p {
-    margin: 5px 0;
-    font-size: 0.9em;
+    margin: 8px 0;
+    font-size: 1em;
     text-align: left;
 }
 
 .modal-content.landscape-layout .share-buttons-and-actions {
-    width: 48% !important;
+    width: 48%;
     display: flex;
     flex-direction: column;
-    margin: 10px 0;
-    justify-content: center;
+    margin: 0;
+    justify-content: flex-start;
+    padding-top: 10px;
 }
 
 .modal-content.landscape-layout .share-buttons {
-    margin: 0 0 10px 0;
+    margin: 10px 0 15px;
     width: 100%;
-    flex-direction: column !important;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .modal-content.landscape-layout .share-button {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     width: 100%;
+    max-width: 100%;
 }
 
 .modal-content.landscape-layout .modal-buttons {
     margin-top: 10px;
     width: 100%;
-    flex-direction: column !important;
-}
-
-.modal-content.landscape-layout .modal-buttons button {
-    width: 100%;
-    margin-bottom: 10px;
+    flex-direction: row;
+    gap: 10px;
+    border-top: 1px solid rgba(77, 255, 255, 0.2);
+    padding-top: 15px;
 }
 
 .modal-content.landscape-layout .new-record-badge {
-    margin: 5px auto;
-    font-size: 0.9em;
-    padding: 5px 10px;
+    margin: 10px auto 15px;
+    font-size: 1em;
+    padding: 5px 12px;
 }
 
 /* 横持ち時の特別な調整（横向きのモバイルデバイス用） */
 @media (max-width: 768px) and (orientation: landscape) {
     .modal-content {
-        padding: 10px;
+        padding: 15px;
         max-height: 85vh; /* 横向き時はさらに小さく */
-        flex-direction: row !important; /* 横向きレイアウトに変更（優先度を上げる） */
-        flex-wrap: wrap !important; /* 必要に応じて折り返し（優先度を上げる） */
-        justify-content: space-between !important; /* 左右に分ける（優先度を上げる） */
-        align-items: flex-start !important; /* 上揃え（優先度を上げる） */
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        transform: translate(-50%, -50%) !important; /* 位置を固定 */
     }
     
     #resultTitle {
-        font-size: 1.5em;
+        font-size: 1.7em;
         margin-bottom: 10px;
-        width: 100% !important; /* タイトルだけは全幅（優先度を上げる） */
+        width: 100%;
     }
     
     .result-info {
-        padding: 10px;
-        margin: 10px 0;
-        width: 48% !important; /* 左側に配置（優先度を上げる） */
+        padding: 15px;
+        margin: 0;
+        width: 48%;
         box-sizing: border-box;
-        overflow-y: auto; /* 情報が多い場合にスクロール */
-        max-height: 65vh; /* 高さ制限 */
+        overflow-y: auto;
+        max-height: 65vh;
     }
     
     .result-info p {
-        margin: 5px 0;
-        font-size: 0.9em;
+        margin: 8px 0;
+        font-size: 1em;
         text-align: left;
     }
     
     .new-record-badge {
-        margin: 5px auto;
-        font-size: 0.9em;
+        margin: 5px auto 10px;
+        font-size: 0.95em;
         padding: 5px 10px;
     }
     
     .share-buttons-and-actions {
-        width: 48% !important; /* 右側に配置（優先度を上げる） */
+        width: 48%;
         display: flex;
         flex-direction: column;
-        margin: 10px 0;
-        justify-content: center; /* 中央揃え */
+        margin: 0;
+        padding-top: 5px;
     }
     
     .share-buttons {
-        margin: 0 0 10px 0;
+        margin: 5px 0;
         width: 100%;
-        flex-direction: column !important; /* ボタンを縦に並べる（優先度を上げる） */
+        flex-direction: column;
+        gap: 8px;
     }
     
     .share-button {
-        margin-bottom: 10px;
+        margin-bottom: 0;
         width: 100%;
+        padding: 10px 15px;
+        font-size: 1em;
     }
     
     .modal-buttons {
         margin-top: 10px;
         width: 100%;
-        flex-direction: column !important; /* ボタンを縦に並べる（優先度を上げる） */
+        flex-direction: row;
+        gap: 10px;
     }
     
     .modal-buttons button {
         width: 100%;
-        margin-bottom: 10px;
+        flex: 1;
+        max-width: 100%;
+        padding: 10px 15px;
+        font-size: 1em;
     }
 }
 
@@ -862,5 +990,139 @@ body {
 @media (max-width: 768px) and (orientation: portrait) {
     .orientation-message.mobile-only {
         display: flex;
+    }
+}
+
+/* ボタンとSNS共有の配置を整える - PC向け */
+@media (min-width: 769px) {
+    .modal-content {
+        padding: 25px 20px;
+        overflow-y: auto;
+        width: 85%;
+        max-width: 600px;
+    }
+    
+    .result-info {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .share-buttons-and-actions {
+        max-width: 100%;
+        margin: 0 auto;
+        width: 100%;
+    }
+    
+    .share-buttons {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .share-button {
+        min-width: 160px;
+        max-width: 220px;
+        padding: 12px 15px;
+        font-size: 1em;
+        white-space: nowrap;
+        flex: 0 1 auto;
+    }
+    
+    .modal-buttons {
+        padding-top: 15px;
+        margin-top: 8px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+    
+    .modal-buttons button {
+        min-width: 160px;
+        max-width: 220px;
+        padding: 12px 15px;
+        font-size: 1em;
+        flex: 0 1 auto;
+        white-space: nowrap;
+    }
+}
+
+/* 非常に小さい画面向けの追加調整 */
+@media (max-width: 360px) {
+    .title-section h1 {
+        font-size: 1.6rem;
+    }
+    
+    .title-section h2 {
+        font-size: 0.9rem;
+    }
+    
+    .instructions, .settings-section {
+        padding: 12px;
+    }
+    
+    .setting-item label {
+        font-size: 0.9rem;
+    }
+    
+    .setting-item span {
+        font-size: 0.9rem;
+        min-width: 30px;
+    }
+    
+    .setting-item input[type="range"] {
+        height: 20px;
+    }
+    
+    .setting-item input[type="range"]::-webkit-slider-thumb,
+    .setting-item input[type="range"]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* スライダーのタッチ操作時のスタイル */
+.setting-item input[type="range"].touching::-webkit-slider-thumb {
+    transform: scale(1.2);
+    background: #00a0ff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+.setting-item input[type="range"].touching::-moz-range-thumb {
+    transform: scale(1.2);
+    background: #00a0ff;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+}
+
+/* タッチデバイス向けのスライダーの改良 */
+@media (pointer: coarse) {
+    .setting-item input[type="range"]::-webkit-slider-thumb {
+        border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+    
+    .setting-item input[type="range"]::-moz-range-thumb {
+        border: 2px solid rgba(255, 255, 255, 0.8);
+    }
+    
+    /* タッチフィードバックの強化 */
+    .setting-item input[type="range"]:active::-webkit-slider-thumb,
+    .setting-item input[type="range"]:focus::-webkit-slider-thumb,
+    .setting-item input[type="range"].touching::-webkit-slider-thumb {
+        transform: scale(1.2);
+        background: #00a0ff;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        transition: all 0.1s ease;
+    }
+    
+    .setting-item input[type="range"]:active::-moz-range-thumb,
+    .setting-item input[type="range"]:focus::-moz-range-thumb,
+    .setting-item input[type="range"].touching::-moz-range-thumb {
+        transform: scale(1.2);
+        background: #00a0ff;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        transition: all 0.1s ease;
     }
 } 

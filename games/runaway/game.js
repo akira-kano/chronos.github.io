@@ -86,7 +86,13 @@ class Game {
         this.isGameCleared = false;
         
         // ベストスコアの読み込み
-        this.bestScore = parseInt(localStorage.getItem('bestScore')) || 0;
+        try {
+            this.bestScore = parseInt(localStorage.getItem('bestScore')) || 0;
+        } catch (e) {
+            console.error('ベストスコア読み込みエラー:', e);
+            this.bestScore = 0; // localStorage失敗時のフォールバック
+        }
+        
         const bestScoreElement = document.getElementById('best-score');
         if (bestScoreElement) {
             bestScoreElement.innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
@@ -132,13 +138,17 @@ class Game {
     
     // ゲーム情報の更新
     updateGameInfo() {
-        const scoreEl = document.getElementById('score');
-        const lifeEl = document.getElementById('life');
-        const bestScoreEl = document.getElementById('best-score');
-        
-        if (scoreEl) scoreEl.innerHTML = `<i class="fas fa-star"></i> スコア: ${this.score}`;
-        if (lifeEl) lifeEl.innerHTML = `<i class="fas fa-heart"></i> ライフ: ${this.player.life}`;
-        if (bestScoreEl) bestScoreEl.innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
+        try {
+            const scoreEl = document.getElementById('score');
+            const lifeEl = document.getElementById('life');
+            const bestScoreEl = document.getElementById('best-score');
+            
+            if (scoreEl) scoreEl.innerHTML = `<i class="fas fa-star"></i> スコア: ${this.score}`;
+            if (lifeEl) lifeEl.innerHTML = `<i class="fas fa-heart"></i> ライフ: ${this.player.life}`;
+            if (bestScoreEl) bestScoreEl.innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
+        } catch (e) {
+            console.error('ゲーム情報更新エラー:', e);
+        }
     }
 
     calculateScoreMultiplier(difficulty) {
@@ -441,6 +451,7 @@ class Game {
                         if (enemy.x > this.canvas.width + enemy.width) {
                             enemy.isDead = true;
                             if (this.isBossFight) {
+                                // ボスクリア時にボーナススコアは付与しない
                                 this.gameCleared();
                             }
                         }
@@ -471,7 +482,8 @@ class Game {
             if (enemy.pattern === 'random') {
                 return !enemy.isDead; // ボスは明示的にisDead = trueになるまで残す
             }
-            // 通常の敵の場合
+            
+            // 通常の敵は画面外に出るか撃破されたら除去（スコア加算なし）
             return enemy.x > -enemy.width && !enemy.isDead;
         });
     }
@@ -543,35 +555,38 @@ class Game {
 
     showResultModal(isCleared) {
         const modal = document.getElementById('resultModal');
+        const modalContent = document.querySelector('.modal-content');
         const resultTitle = document.getElementById('resultTitle');
-        const finalLevel = document.getElementById('finalLevel');
-        const finalDifficulty = document.getElementById('finalDifficulty');
         const finalScore = document.getElementById('finalScore');
         const bestScore = document.getElementById('bestScore');
         const newRecordBadge = document.getElementById('newRecordBadge');
-        const modalContent = document.querySelector('.modal-content');
-
+        
+        if (!modal || !modalContent || !resultTitle || !finalScore || !bestScore || !newRecordBadge) {
+            console.error('リザルトモーダル要素が見つかりません');
+            return;
+        }
+        
         // レベルと難易度の表示
         finalLevel.textContent = `${this.difficulty + 1}`;
         finalDifficulty.textContent = this.gameDifficulty.level;
 
         // スコアの更新
-        finalScore.textContent = this.score;
-        bestScore.textContent = this.bestScore;
+        finalScore.textContent = this.score.toString();
+        bestScore.textContent = this.bestScore.toString();
 
         // タイトルの設定
         if (isCleared) {
             resultTitle.innerHTML = `
-                ステージクリア！<br>
-                <span style="font-size: 0.7em; color: #4df;">
-                    <i class="fas fa-keyboard"></i> スペースキーを押して次のレベルへ
+                <i class="fas fa-trophy"></i> ステージクリア！ <i class="fas fa-trophy"></i><br>
+                <span style="font-size: 0.6em; color: #4df; font-weight: normal;">
+                    <i class="fas fa-keyboard"></i> スペースキーまたは下のボタンを押して次のレベルへ
                 </span>
             `;
         } else {
             resultTitle.innerHTML = `
-                ゲームオーバー<br>
-                <span style="font-size: 0.7em; color: #4df;">
-                    <i class="fas fa-keyboard"></i> スペースキーを押してリトライ
+                <i class="fas fa-skull"></i> ゲームオーバー <i class="fas fa-skull"></i><br>
+                <span style="font-size: 0.6em; color: #4df; font-weight: normal;">
+                    <i class="fas fa-keyboard"></i> スペースキーまたは下のボタンを押してリトライ
                 </span>
             `;
         }
@@ -579,34 +594,101 @@ class Game {
         // ベストスコアの更新確認
         if (this.score > this.bestScore) {
             this.bestScore = this.score;
-            localStorage.setItem('bestScore', this.bestScore);
+            try {
+                localStorage.setItem('bestScore', this.bestScore.toString());
+            } catch (e) {
+                console.error('ベストスコア保存エラー:', e);
+                // localStorage失敗時でもメモリ上のbestScoreは更新済み
+            }
             newRecordBadge.style.display = 'inline-block';
-            bestScore.textContent = this.bestScore;
+            bestScore.textContent = this.bestScore.toString();
         } else {
             newRecordBadge.style.display = 'none';
         }
 
         // レイアウトをリセット（横持ち用のスタイルを適用するためのトリガー）
-        if (modalContent) {
-            // 強制的にレイアウトを更新するためのトリック
-            void modalContent.offsetWidth;
-            
-            // 横向きかどうかを確認して適切なクラスを設定
-            if (window.innerWidth > window.innerHeight) {
-                modalContent.classList.add('landscape-layout');
-            } else {
-                modalContent.classList.remove('landscape-layout');
+        void modalContent.offsetWidth;
+        
+        // リサイズハンドラーの定義
+        const handleResize = () => {
+            if (modalContent) {
+                const isLandscape = window.innerWidth > window.innerHeight;
+                
+                // レイアウトクラスの切り替え
+                if (isLandscape) {
+                    modalContent.classList.add('landscape-layout');
+                } else {
+                    modalContent.classList.remove('landscape-layout');
+                }
+                
+                // PC/モバイル判定とボタン幅の調整
+                if (!this.isMobileDevice()) {
+                    // PC向けの最適化
+                    const availableWidth = window.innerWidth;
+                    // モーダルの最大横幅を画面サイズに応じて調整
+                    const modalWidth = Math.min(620, availableWidth * 0.85);
+                    modalContent.style.maxWidth = `${modalWidth}px`;
+                    
+                    // ボタンの最適なサイズを計算
+                    const buttonContainer = document.querySelector('.modal-buttons');
+                    if (buttonContainer) {
+                        const containerWidth = buttonContainer.clientWidth;
+                        const buttonCount = document.querySelectorAll('.modal-buttons button').length;
+                        const optimalButtonWidth = Math.min(
+                            220, // 最大幅
+                            Math.floor((containerWidth - (buttonCount - 1) * 20) / buttonCount) // ボタン間のギャップを考慮
+                        );
+                        
+                        // ボタンサイズの設定（最小値は確保）
+                        const buttons = document.querySelectorAll('.modal-buttons button');
+                        buttons.forEach(button => {
+                            const minButtonWidth = Math.max(160, optimalButtonWidth);
+                            button.style.minWidth = `${minButtonWidth}px`;
+                            button.style.maxWidth = `${minButtonWidth + 40}px`; // 最大幅も制限
+                            // ボタンが小さすぎる場合はパディングを調整
+                            if (minButtonWidth < 180) {
+                                button.style.padding = '12px 14px';
+                                button.style.fontSize = '1em';
+                            }
+                        });
+                        
+                        // シェアボタンのサイズも調整
+                        const shareButtons = document.querySelectorAll('.share-button');
+                        shareButtons.forEach(button => {
+                            button.style.minWidth = `${Math.max(160, optimalButtonWidth)}px`;
+                        });
+                    }
+                } else {
+                    // モバイル向けの最適化
+                    modalContent.style.maxWidth = '95%';
+                    
+                    if (!isLandscape) {
+                        // 縦持ち時は横幅制限を解除
+                        const buttons = document.querySelectorAll('.modal-buttons button, .share-button');
+                        buttons.forEach(button => {
+                            button.style.minWidth = 'unset';
+                            button.style.maxWidth = '100%';
+                        });
+                    }
+                }
             }
-        }
-
+        };
+        
+        // 初期レイアウトの設定
+        handleResize();
+        
         // モーダルの表示
         modal.style.display = 'block';
+        
+        // リサイズイベントのリスナー登録
+        window.addEventListener('resize', handleResize);
 
         // スペースキーでリトライできるようにイベントリスナーを追加
         const handleKeyPress = (e) => {
             if (e.key === ' ') {
                 e.preventDefault();
                 window.removeEventListener('keydown', handleKeyPress);
+                window.removeEventListener('resize', handleResize);
                 modal.style.display = 'none';
                 this.retry(this.difficulty + (isCleared ? 1 : 0));
             }
@@ -618,12 +700,17 @@ class Game {
         const settingsButton = document.querySelector('.modal-buttons button:last-child');
         
         // ボタンのテキストを状況に応じて変更
-        retryButton.textContent = isCleared ? '次のレベルへ' : 'リトライ';
-        settingsButton.textContent = '設定に戻る';
-        
+        if (isCleared) {
+            retryButton.innerHTML = '<i class="fas fa-arrow-right"></i> 次のレベルへ';
+        } else {
+            retryButton.innerHTML = '<i class="fas fa-redo"></i> リトライ';
+        }
+        settingsButton.innerHTML = '<i class="fas fa-cog"></i> 設定に戻る';
+
         // リトライ/次のレベルボタンのクリックイベント
         retryButton.onclick = () => {
             window.removeEventListener('keydown', handleKeyPress);
+            window.removeEventListener('resize', handleResize);
             modal.style.display = 'none';
             this.retry(this.difficulty + (isCleared ? 1 : 0));
         };
@@ -631,6 +718,7 @@ class Game {
         // 設定に戻るボタンのクリックイベント
         settingsButton.onclick = () => {
             window.removeEventListener('keydown', handleKeyPress);
+            window.removeEventListener('resize', handleResize);
             modal.style.display = 'none';
             this.showSettings();
         };
@@ -833,18 +921,28 @@ class Game {
     gameLoop() {
         if (this.isGameOver || this.isGameCleared) return;
         
-        // スコア情報の更新
-        this.updateGameInfo();
-        
-        // ゲームの更新処理
-        this.spawnEnemy();
-        this.updatePlayer();
-        this.updateEnemies();
-        this.updateBullets();
-        this.checkCollisions();
-        
-        // 描画処理
-        this.draw();
+        try {
+            // 時間経過でのスコア加算（生き残った時間に比例）
+            if (!this.timeStop) {
+                // 生存時間による得点：基本1点 × 難易度倍率
+                this.score += 1 * this.scoreMultiplier;
+            }
+            
+            // スコア情報の更新
+            this.updateGameInfo();
+            
+            // ゲームの更新処理
+            this.spawnEnemy();
+            this.updatePlayer();
+            this.updateEnemies();
+            this.updateBullets();
+            this.checkCollisions();
+            
+            // 描画処理
+            this.draw();
+        } catch (e) {
+            console.error('ゲームループエラー:', e);
+        }
         
         requestAnimationFrame(() => this.gameLoop());
     }
@@ -1065,4 +1163,53 @@ window.addEventListener('DOMContentLoaded', function() {
     
     // 初期難易度を表示
     updateDifficulty();
+
+    // タッチ操作の説明表示・非表示の切り替え
+    const touchControlsInfo = document.getElementById('touchControlsInfo');
+    if (touchControlsInfo) {
+        touchControlsInfo.style.display = isMobileDevice() ? 'block' : 'none';
+    }
+    
+    // 横向き推奨メッセージの表示・非表示を設定
+    const orientationMessage = document.getElementById('orientationMessage');
+    if (orientationMessage) {
+        if (isMobileDevice()) {
+            // モバイルデバイスの場合はクラスを追加（縦向き時のみ表示）
+            orientationMessage.classList.add('mobile-only');
+        } else {
+            // PCの場合は完全に非表示
+            orientationMessage.style.display = 'none';
+        }
+    }
+    
+    // モバイルデバイスの場合、スライダーのタッチイベント処理を強化
+    if (isMobileDevice()) {
+        const sliders = document.querySelectorAll('input[type="range"][data-setting="true"]');
+        sliders.forEach(slider => {
+            // つまみがタッチしやすいようにスタイル調整
+            slider.style.cursor = 'pointer';
+            
+            // タッチ操作時の設定更新処理を強化
+            slider.addEventListener('touchmove', function() {
+                const id = this.id;
+                const valueSpan = document.getElementById(id + 'Value');
+                if (valueSpan) {
+                    valueSpan.textContent = id === 'bossStayTime' ? this.value + '秒' : this.value;
+                }
+                // 難易度も動的に更新
+                updateDifficulty();
+            });
+            
+            // タッチ操作のフィードバックを改善
+            slider.addEventListener('touchstart', function() {
+                this.classList.add('touching');
+            });
+            
+            slider.addEventListener('touchend', function() {
+                this.classList.remove('touching');
+                updateSettingValue(this.id);
+                updateDifficulty();
+            });
+        });
+    }
 }); 
