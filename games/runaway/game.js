@@ -560,6 +560,8 @@ class Game {
         const finalScore = document.getElementById('finalScore');
         const bestScore = document.getElementById('bestScore');
         const newRecordBadge = document.getElementById('newRecordBadge');
+        const finalLevel = document.getElementById('finalLevel');
+        const finalDifficulty = document.getElementById('finalDifficulty');
         
         if (!modal || !modalContent || !resultTitle || !finalScore || !bestScore || !newRecordBadge) {
             console.error('リザルトモーダル要素が見つかりません');
@@ -567,8 +569,8 @@ class Game {
         }
         
         // レベルと難易度の表示
-        finalLevel.textContent = `${this.difficulty + 1}`;
-        finalDifficulty.textContent = this.gameDifficulty.level;
+        if (finalLevel) finalLevel.textContent = `${this.difficulty + 1}`;
+        if (finalDifficulty) finalDifficulty.textContent = this.gameDifficulty.level;
 
         // スコアの更新
         finalScore.textContent = this.score.toString();
@@ -674,14 +676,17 @@ class Game {
             }
         };
         
-        // 初期レイアウトの設定
-        handleResize();
-        
         // モーダルの表示
-        modal.style.display = 'block';
-        
-        // リサイズイベントのリスナー登録
-        window.addEventListener('resize', handleResize);
+        setTimeout(() => {
+            // 少し遅延させてDOMに確実に反映させる（AndroidのChromeの問題対策）
+            modal.style.display = 'block';
+            
+            // 初期レイアウトの設定
+            handleResize();
+            
+            // リサイズイベントのリスナー登録
+            window.addEventListener('resize', handleResize);
+        }, 50); // 50ミリ秒の遅延
 
         // スペースキーでリトライできるようにイベントリスナーを追加
         const handleKeyPress = (e) => {
@@ -700,28 +705,33 @@ class Game {
         const settingsButton = document.querySelector('.modal-buttons button:last-child');
         
         // ボタンのテキストを状況に応じて変更
-        if (isCleared) {
-            retryButton.innerHTML = '<i class="fas fa-arrow-right"></i> 次のレベルへ';
-        } else {
-            retryButton.innerHTML = '<i class="fas fa-redo"></i> リトライ';
+        if (retryButton) {
+            if (isCleared) {
+                retryButton.innerHTML = '<i class="fas fa-arrow-right"></i> 次のレベルへ';
+            } else {
+                retryButton.innerHTML = '<i class="fas fa-redo"></i> リトライ';
+            }
+            
+            // リトライ/次のレベルボタンのクリックイベント
+            retryButton.onclick = () => {
+                window.removeEventListener('keydown', handleKeyPress);
+                window.removeEventListener('resize', handleResize);
+                modal.style.display = 'none';
+                this.retry(this.difficulty + (isCleared ? 1 : 0));
+            };
         }
-        settingsButton.innerHTML = '<i class="fas fa-cog"></i> 設定に戻る';
-
-        // リトライ/次のレベルボタンのクリックイベント
-        retryButton.onclick = () => {
-            window.removeEventListener('keydown', handleKeyPress);
-            window.removeEventListener('resize', handleResize);
-            modal.style.display = 'none';
-            this.retry(this.difficulty + (isCleared ? 1 : 0));
-        };
-
-        // 設定に戻るボタンのクリックイベント
-        settingsButton.onclick = () => {
-            window.removeEventListener('keydown', handleKeyPress);
-            window.removeEventListener('resize', handleResize);
-            modal.style.display = 'none';
-            this.showSettings();
-        };
+        
+        if (settingsButton) {
+            settingsButton.innerHTML = '<i class="fas fa-cog"></i> 設定に戻る';
+            
+            // 設定に戻るボタンのクリックイベント
+            settingsButton.onclick = () => {
+                window.removeEventListener('keydown', handleKeyPress);
+                window.removeEventListener('resize', handleResize);
+                modal.style.display = 'none';
+                this.showSettings();
+            };
+        }
     }
 
     gameOver() {
@@ -984,11 +994,17 @@ function shareOnLine() {
 function retryGame() {
     if (window.game) {
         const modal = document.getElementById('resultModal');
-        if (modal) modal.style.display = 'none';
-        
-        const isCleared = window.game.isGameCleared;
-        const newDifficulty = window.game.difficulty + (isCleared ? 1 : 0);
-        window.game.retry(newDifficulty);
+        if (modal) {
+            // モーダルを非表示
+            modal.style.display = 'none';
+            
+            // 少し遅延させてからゲームを再開（AndroidのChromeの問題対策）
+            setTimeout(() => {
+                const isCleared = window.game.isGameCleared;
+                const newDifficulty = window.game.difficulty + (isCleared ? 1 : 0);
+                window.game.retry(newDifficulty);
+            }, 50);
+        }
     }
 }
 
@@ -1212,4 +1228,26 @@ window.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-}); 
+});
+
+// 設定画面に戻るグローバル関数
+function backToSettings() {
+    const modal = document.getElementById('resultModal');
+    if (modal) {
+        // モーダルを非表示
+        modal.style.display = 'none';
+        
+        // 少し遅延させてから設定画面を表示（AndroidのChromeの問題対策）
+        setTimeout(() => {
+            if (window.game) {
+                window.game.showSettings();
+            } else {
+                // ゲームインスタンスがない場合は直接表示を切り替え
+                const gameContainer = document.querySelector('.game-container');
+                const settingsPanel = document.querySelector('.settings-panel');
+                if (gameContainer) gameContainer.style.display = 'none';
+                if (settingsPanel) settingsPanel.style.display = 'block';
+            }
+        }, 50);
+    }
+} 
