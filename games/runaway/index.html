@@ -2,13 +2,22 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>クロノスサーガ</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+    <!-- 横向き推奨メッセージ -->
+    <div class="orientation-message" id="orientationMessage">
+        <i class="fas fa-mobile-alt"></i>
+        <h2>端末を横向きにしてください</h2>
+        <p>より良いゲーム体験のために、端末を横向きにしてプレイすることをおすすめします。</p>
+    </div>
+
     <div class="game-container">
         <canvas id="gameCanvas"></canvas>
         <div class="game-info">
@@ -66,6 +75,24 @@
                     <span class="description">時を止める</span>
                 </div>
             </div>
+            
+            <!-- モバイル向け操作説明 -->
+            <div class="touch-controls-info" id="touchControlsInfo">
+                <h3><i class="fas fa-mobile-alt"></i> タッチ操作</h3>
+                <div class="touch-control-item">
+                    <div class="touch-control-icon">
+                        <i class="fas fa-arrows-alt"></i>
+                    </div>
+                    <span class="description">画面左側をドラッグしてプレイヤーを移動</span>
+                </div>
+                <div class="touch-control-item">
+                    <div class="touch-control-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span class="description">画面右下のボタンをタップして時を止める</span>
+                </div>
+            </div>
+            
             <div class="game-description">
                 敵を避けながら進み、ボスと戦おう！<br>
                 時を止める能力を使って、ピンチを切り抜けろ！
@@ -73,7 +100,7 @@
         </div>
 
         <div class="settings-section">
-            <h3><i class="fas fa-sliders"></i> ゲーム設定</h3>
+            <h3><i class="fas fa-sliders-h"></i> ゲーム設定</h3>
             <div class="setting-item">
                 <label><i class="fas fa-users"></i> 最大敵数:</label>
                 <input type="range" id="maxEnemies" min="5" max="15" value="10">
@@ -111,6 +138,34 @@
         </div>
         <button id="startGame"><i class="fas fa-play"></i> ゲームスタート</button>
     </div>
+
+    <script>
+        // モバイルデバイスの判定
+        function isMobileDevice() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+        
+        // DOMの読み込み完了時の処理
+        window.addEventListener('DOMContentLoaded', function() {
+            // タッチ操作の説明表示・非表示の切り替え
+            const touchControlsInfo = document.getElementById('touchControlsInfo');
+            if (touchControlsInfo) {
+                touchControlsInfo.style.display = isMobileDevice() ? 'block' : 'none';
+            }
+            
+            // 横向き推奨メッセージの表示・非表示を設定
+            const orientationMessage = document.getElementById('orientationMessage');
+            if (orientationMessage) {
+                if (isMobileDevice()) {
+                    // モバイルデバイスの場合はクラスを追加（縦向き時のみ表示）
+                    orientationMessage.classList.add('mobile-only');
+                } else {
+                    // PCの場合は完全に非表示
+                    orientationMessage.style.display = 'none';
+                }
+            }
+        });
+    </script>
     <script src="game.js"></script>
 </body>
 </html> 
