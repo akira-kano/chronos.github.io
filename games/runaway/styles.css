@@ -292,27 +292,33 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 10000; /* 最前面に表示 */
-    animation: fadeIn 0.5s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 100000; /* 非常に高い値にして確実に最前面へ */
+    animation: fadeIn 0.3s ease-in-out;
     backdrop-filter: blur(5px);
     box-sizing: border-box;
     padding: 10px;
     font-family: 'Noto Sans JP', sans-serif;
+    /* 全画面モードでの問題を防ぐためのスタイル */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: opacity;
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* ゲームコンテナ内に配置した場合のモーダルスタイル（Android Chrome対策） */
+.game-container > .modal {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.9);
 }
 
+/* モーダルコンテンツのスタイル */
 .modal-content {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 80%;
-    max-width: 620px; /* 横幅を最適化 */
+    max-width: 620px;
     background: linear-gradient(135deg, #12172e, #203354);
     color: white;
     padding: 25px 20px;
@@ -322,20 +328,29 @@ body {
     flex-direction: column;
     align-items: center;
     overflow: hidden;
-    animation: slideIn 0.5s ease-out;
+    animation: slideIn 0.3s ease-out;
     border: 1px solid rgba(77, 255, 255, 0.3);
     max-height: 95vh;
     overflow-y: auto;
     box-sizing: border-box;
+    /* 表示問題対策のための追加スタイル */
+    transform: translate(-50%, -50%) translateZ(0);
+    -webkit-transform: translate(-50%, -50%) translateZ(0);
+    will-change: transform, opacity;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes slideIn {
     from {
-        transform: translate(-50%, -55%);
+        transform: translate(-50%, -55%) translateZ(0);
         opacity: 0;
     }
     to {
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) translateZ(0);
         opacity: 1;
     }
 }
@@ -1126,4 +1141,30 @@ body {
         box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
         transition: all 0.1s ease;
     }
+}
+
+/* Android Chrome対策のための追加クラス */
+.android-modal-fix {
+    position: fixed !important;
+    z-index: 200000 !important;
+    pointer-events: auto !important;
+    touch-action: auto !important;
+    visibility: visible !important;
+    /* ハードウェアアクセラレーション強制 */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+}
+
+.android-content-fix {
+    transform: translate(-50%, -50%) translateZ(0) !important;
+    -webkit-transform: translate(-50%, -50%) translateZ(0) !important;
+    z-index: 200001 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    touch-action: auto !important;
 } 
