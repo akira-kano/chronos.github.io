@@ -110,79 +110,96 @@ class Game {
     
     // キャンバスサイズの調整
     resizeCanvas() {
-        const gameContainer = document.querySelector('.game-container');
-        const containerWidth = gameContainer.clientWidth;
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        
-        // スマートフォンかどうかでサイズを調整
-        if (this.isMobileDevice()) {
-            // AndroidのChromeかどうか判定
-            const isAndroidChrome = this.isAndroidChrome();
+        try {
+            const gameContainer = document.querySelector('.game-container');
+            const containerWidth = gameContainer.clientWidth;
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
             
-            if (isAndroidChrome) {
-                console.log("Android Chrome検出: 特別なキャンバスサイズ調整を適用");
+            // スマートフォンかどうかでサイズを調整
+            if (this.isMobileDevice()) {
+                // AndroidのChromeかどうか判定
+                const isAndroidChrome = this.isAndroidChrome();
                 
-                // 横持ち推奨メッセージを強制的に非表示（念のため）
-                const orientationMessage = document.getElementById('orientationMessage');
-                if (orientationMessage) {
-                    orientationMessage.style.display = 'none';
-                    if (orientationMessage.parentNode) {
-                        orientationMessage.parentNode.removeChild(orientationMessage);
+                if (isAndroidChrome) {
+                    console.log("Android Chrome検出: 特別なキャンバスサイズ調整を適用");
+                    
+                    // 横持ち推奨メッセージを強制的に非表示（念のため）
+                    const orientationMessage = document.getElementById('orientationMessage');
+                    if (orientationMessage) {
+                        orientationMessage.style.display = 'none';
+                        if (orientationMessage.parentNode) {
+                            orientationMessage.parentNode.removeChild(orientationMessage);
+                        }
+                    }
+                    
+                    // 画面の向きに基づいて調整
+                    const isLandscape = windowWidth > windowHeight;
+                    
+                    if (isLandscape) {
+                        // 横向きの場合、画面幅の85%を使用（余白を増やす）
+                        this.canvas.width = Math.min(windowWidth * 0.85, 1200);
+                        // 横幅の半分をおおよその高さに設定（アスペクト比維持）
+                        this.canvas.height = this.canvas.width / 2;
+                    } else {
+                        // 縦向きの場合
+                        this.canvas.width = Math.min(windowWidth * 0.9, 800);
+                        this.canvas.height = this.canvas.width / 2;
+                    }
+                    
+                    // 最小値と最大値の制限
+                    this.canvas.width = Math.max(this.canvas.width, 320);
+                    this.canvas.height = Math.max(this.canvas.height, 200);
+                    
+                    // ゲームコンテナのスタイルも調整
+                    gameContainer.style.width = this.canvas.width + 'px';
+                    gameContainer.style.height = 'auto';
+                    gameContainer.style.margin = '0 auto';
+                    gameContainer.style.display = 'flex';
+                    
+                    // キャンバスのスタイルを明示的に設定
+                    this.canvas.style.width = '100%';
+                    this.canvas.style.height = 'auto';
+                    this.canvas.style.display = 'block';
+                    this.canvas.style.margin = '0 auto';
+                    
+                    // リサイズ後、キャンバスがコンテナに確実に表示されるようにする
+                    setTimeout(() => {
+                        if (this.canvas.parentNode !== gameContainer) {
+                            try {
+                                gameContainer.appendChild(this.canvas);
+                            } catch (e) {
+                                console.error("キャンバス再配置エラー:", e);
+                            }
+                        }
+                    }, 0);
+                    
+                } else {
+                    // 他のモバイルデバイス（iOSなど）の場合
+                    this.canvas.width = containerWidth;
+                    this.canvas.height = containerWidth / 2; // アスペクト比2:1
+                    
+                    // 最小高さの設定
+                    const minHeight = 300;
+                    if (this.canvas.height < minHeight) {
+                        this.canvas.height = minHeight;
                     }
                 }
-                
-                // 画面の向きに基づいて調整
-                const isLandscape = windowWidth > windowHeight;
-                
-                if (isLandscape) {
-                    // 横向きの場合、画面幅の95%を使用
-                    this.canvas.width = Math.min(windowWidth * 0.95, 1200);
-                    // 横幅の半分をおおよその高さに設定（アスペクト比維持）
-                    this.canvas.height = this.canvas.width / 2;
-                } else {
-                    // 縦向きの場合
-                    this.canvas.width = Math.min(windowWidth * 0.95, 800);
-                    this.canvas.height = this.canvas.width / 2;
-                }
-                
-                // 最小値と最大値の制限
-                this.canvas.width = Math.max(this.canvas.width, 320);
-                this.canvas.height = Math.max(this.canvas.height, 200);
-                
-                // ゲームコンテナのスタイルも調整
-                gameContainer.style.width = this.canvas.width + 'px';
-                gameContainer.style.height = 'auto';
-                gameContainer.style.margin = '0 auto';
-                
-                // キャンバスサイズに合わせてスタイルを調整
-                this.canvas.style.width = '100%';
-                this.canvas.style.height = 'auto';
-                this.canvas.style.display = 'block';
-                
             } else {
-                // 他のモバイルデバイス（iOSなど）の場合
-                this.canvas.width = containerWidth;
-                this.canvas.height = containerWidth / 2; // アスペクト比2:1
-                
-                // 最小高さの設定
-                const minHeight = 300;
-                if (this.canvas.height < minHeight) {
-                    this.canvas.height = minHeight;
-                }
+                // デスクトップの場合は固定サイズ
+                this.canvas.width = 800;
+                this.canvas.height = 400;
             }
-        } else {
-            // デスクトップの場合は固定サイズ
-            this.canvas.width = 800;
-            this.canvas.height = 400;
-        }
-        
-        // コンソールにサイズ情報を出力（デバッグ用）
-        console.log(`Canvas size: ${this.canvas.width}x${this.canvas.height}, Container width: ${containerWidth}, Window: ${windowWidth}x${windowHeight}`);
-        
-        // タッチコントロールの位置も更新
-        if (this.touchControls) {
-            this.updateTouchControlsPosition();
+            
+            // コンソールにサイズ情報を出力（デバッグ用）
+            console.log(`Canvas size: ${this.canvas.width}x${this.canvas.height}, Container width: ${containerWidth}, Window: ${windowWidth}x${windowHeight}`);
+            
+            // タッチコントロールの位置も更新
+            if (this.touchControls) {
+                this.updateTouchControlsPosition();
+            }
+        } catch (error) {
+            console.error("resizeCanvas中にエラーが発生:", error);
         }
     }
     
@@ -857,8 +874,35 @@ class Game {
 
     retry(newDifficulty = this.difficulty) {
         const gameContainer = document.querySelector('.game-container');
-        gameContainer.style.display = 'block';
-        new Game(this.settings, newDifficulty);
+        
+        // ゲームコンテナの表示方法を修正（displayをflexに変更）
+        gameContainer.style.display = 'flex';
+        
+        // AndroidのChromeの場合は特別な処理
+        if (this.isAndroidChrome()) {
+            console.log("Android Chrome検出: retry時にコンテナサイズを最適化");
+            
+            // 画面の向きチェック
+            const isLandscape = window.innerWidth > window.innerHeight;
+            const windowWidth = window.innerWidth;
+            
+            // 画面幅の95%を使用
+            gameContainer.style.width = (windowWidth * 0.95) + 'px';
+            gameContainer.style.maxWidth = '1200px';
+            gameContainer.style.margin = '0 auto';
+            
+            // 横持ち推奨メッセージを強制的に非表示（念のため）
+            const orientationMessage = document.getElementById('orientationMessage');
+            if (orientationMessage) {
+                orientationMessage.style.display = 'none';
+                if (orientationMessage.parentNode) {
+                    orientationMessage.parentNode.removeChild(orientationMessage);
+                }
+            }
+        }
+        
+        // 新しいゲームインスタンスを作成
+        window.game = new Game(this.settings, newDifficulty);
     }
 
     showSettings() {
@@ -1220,6 +1264,7 @@ window.onload = () => {
             
             // Android Chromeでの問題に対処するため
             if (isAndroid && isChrome) {
+                console.log("Android Chrome検出: 横持ちメッセージを完全に削除");
                 // 要素をDOM上から完全に削除
                 if (orientationMessage.parentNode) {
                     orientationMessage.parentNode.removeChild(orientationMessage);
@@ -1231,59 +1276,75 @@ window.onload = () => {
             }
         }
         
-        // ゲームコンテナを表示する前に適切なサイズを設定
-        const gameContainer = document.querySelector('.game-container');
-        
-        // AndroidのChromeの場合は特別な処理
-        if (isAndroid && isChrome) {
-            console.log("Android Chrome検出: コンテナサイズを最適化");
+        try {
+            // ゲームコンテナを表示する前に適切なサイズを設定
+            const gameContainer = document.querySelector('.game-container');
             
-            // 画面の向きチェック
-            const isLandscape = window.innerWidth > window.innerHeight;
-            
-            if (isLandscape) {
-                // 横向きの場合、画面幅の95%を使用
-                gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
-            } else {
-                // 縦向きの場合も95%
-                gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
-            }
-            
-            gameContainer.style.maxWidth = '1200px';
-            gameContainer.style.margin = '0 auto';
-        }
-        
-        // ゲームコンテナを表示
-        gameContainer.style.display = 'flex';
-        
-        // モーダル要素を適切な場所に配置（Androidの全画面モード対策）
-        const resultModal = document.getElementById('resultModal');
-        if (resultModal && isAndroid) {
-            // AndroidではモーダルをDOMの最上位に配置
-            if (resultModal.parentNode) {
-                resultModal.parentNode.removeChild(resultModal);
-            }
-            document.body.appendChild(resultModal);
-        }
-        
-        // ゲームのインスタンス生成
-        window.game = new Game(settings);
-        
-        // リサイズイベントの設定
-        window.addEventListener('resize', function() {
-            if (window.game) {
-                // Android Chromeの場合は、リサイズ時にコンテナサイズも調整
-                if (isAndroid && isChrome) {
-                    const isLandscape = window.innerWidth > window.innerHeight;
-                    if (isLandscape) {
-                        gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
-                    } else {
-                        gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
-                    }
+            // AndroidのChromeの場合は特別な処理
+            if (isAndroid && isChrome) {
+                console.log("Android Chrome検出: コンテナサイズを最適化");
+                
+                // 画面の向きチェック
+                const isLandscape = window.innerWidth > window.innerHeight;
+                const windowWidth = window.innerWidth;
+                
+                // 画面幅の95%を使用
+                gameContainer.style.width = (windowWidth * 0.95) + 'px';
+                gameContainer.style.maxWidth = '1200px';
+                gameContainer.style.margin = '0 auto';
+                
+                // ゲームキャンバスのスタイルを直接調整
+                const gameCanvas = document.getElementById('gameCanvas');
+                if (gameCanvas) {
+                    gameCanvas.style.width = '100%';
+                    gameCanvas.style.height = 'auto';
+                    gameCanvas.style.display = 'block';
+                    console.log("Canvas style updated");
                 }
-                window.game.resizeCanvas();
             }
-        });
+            
+            // ゲームコンテナを必ずflex表示に
+            gameContainer.style.display = 'flex';
+            console.log("Game container displayed as flex");
+            
+            // モーダル要素を適切な場所に配置（Androidの全画面モード対策）
+            const resultModal = document.getElementById('resultModal');
+            if (resultModal && isAndroid) {
+                // AndroidではモーダルをDOMの最上位に配置
+                if (resultModal.parentNode) {
+                    resultModal.parentNode.removeChild(resultModal);
+                }
+                document.body.appendChild(resultModal);
+                console.log("Result modal moved to body");
+            }
+            
+            // ゲームのインスタンス生成
+            window.game = new Game(settings);
+            console.log("Game instance created");
+            
+            // リサイズイベントの設定
+            window.addEventListener('resize', function() {
+                if (window.game) {
+                    // Android Chromeの場合は、リサイズ時にコンテナサイズも調整
+                    if (isAndroid && isChrome) {
+                        const isLandscape = window.innerWidth > window.innerHeight;
+                        const windowWidth = window.innerWidth;
+                        gameContainer.style.width = (windowWidth * 0.95) + 'px';
+                        console.log("Container resized: " + gameContainer.style.width);
+                    }
+                    window.game.resizeCanvas();
+                }
+            });
+            
+        } catch (error) {
+            console.error("ゲーム起動中にエラーが発生しました:", error);
+            // エラーが発生した場合、設定画面を再表示
+            const settingsPanel = document.querySelector('.settings-panel');
+            if (settingsPanel) {
+                settingsPanel.style.display = 'block';
+            }
+            alert("ゲームの起動に失敗しました。ページを再読み込みしてお試しください。");
+        }
     }
 
     // スタートボタンのクリックイベント
