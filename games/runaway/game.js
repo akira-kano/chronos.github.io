@@ -38,120 +38,74 @@ function calculateDifficultyLevel(settings) {
 
 class Game {
     constructor(settings = {}, difficulty = 0) {
-        // ゲーム設定
-        this.settings = {
-            playerSpeed: settings.playerSpeed || 5,
-            enemySpeed: settings.enemySpeed || 2,
-            enemySpawnRate: settings.enemySpawnRate || 0.02,
-            bulletSpeed: settings.bulletSpeed || 3,
-            timeStopDuration: settings.timeStopDuration || 3
-        };
-        
-        // 難易度設定
-        this.difficulty = difficulty;
-        this.scoreMultiplier = this.calculateScoreMultiplier(difficulty);
-        
-        // キャンバスとコンテキストの設定
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
         
-        // ゲーム状態の初期化
-        this.score = 0;
-        this.life = 3;
-        this.gameActive = false;
-        this.enemies = [];
-        this.bullets = [];
-        this.boss = null;
-        this.bossActive = false;
-        this.bossCooldown = 0;
-        this.keyState = { up: false, down: false, left: false, right: false };
-        this.isTimeStopActive = false;
-        this.canUseTimeStop = true;
-        this.timeStopCooldown = 0;
-        this.timeStopCounter = 0;
-        this.bestScore = localStorage.getItem('runawayBestScore') || 0;
-        this.resizeTimeout = null;
-        
-        // プレイヤーの初期化
-        this.player = {
-            x: 50,
-            y: 200,
-            width: 30,
-            height: 30,
-            speed: this.settings.playerSpeed,
-            invincible: false,
-            invincibleTime: 0
-        };
-        
-        // モバイル用タッチコントロール
-        this.touchControls = this.isMobileDevice() ? {
-            left: { x: 0, y: 0, width: 70, height: 70, active: false },
-            right: { x: 0, y: 0, width: 70, height: 70, active: false },
-            up: { x: 0, y: 0, width: 70, height: 70, active: false },
-            down: { x: 0, y: 0, width: 70, height: 70, active: false },
-            timeStop: { x: 0, y: 0, width: 70, height: 70, active: false }
-        } : null;
-        
-        // キャンバスサイズの調整
+        // レスポンシブ対応のキャンバスサイズ設定
         this.resizeCanvas();
         
-        // 既存のリスナーを設定済みかをトラッキングするフラグ
-        this.eventListenersInitialized = false;
-    }
-    
-    // ゲーム開始
-    start() {
-        if (!this.gameActive) {
-            // イベントリスナーのセットアップ（まだ設定されていない場合のみ）
-            if (!this.eventListenersInitialized) {
-                this.setupEventListeners();
-                this.eventListenersInitialized = true;
-            }
-            
-            // ゲーム状態のリセット
-            this.gameActive = true;
-            this.score = 0;
-            this.life = 3;
-            this.enemies = [];
-            this.bullets = [];
-            this.boss = null;
-            this.bossActive = false;
-            this.bossCooldown = 0;
-            
-            // プレイヤーの初期位置
-            this.player.x = 50;
-            this.player.y = this.canvas.height / 2;
-            
-            // タイムストップの初期化
-            this.isTimeStopActive = false;
-            this.canUseTimeStop = true;
-            this.timeStopCooldown = 0;
-            this.timeStopCounter = 0;
-            
-            // ゲームループの開始
-            this.gameLoop();
-        }
-    }
-    
-    // AndroidのChromeかどうかを判定
-    isAndroidChrome() {
-        const userAgent = navigator.userAgent.toLowerCase();
-        return /android/.test(userAgent) && /chrome\/[0-9]+/.test(userAgent);
-    }
-    
-    // 現在の表示領域の高さを取得（ブラウザUIを考慮）
-    getAvailableScreenHeight() {
-        // 画面全体の高さ
-        const windowHeight = window.innerHeight;
+        this.difficulty = difficulty;
+
+        // デフォルト値の設定
+        const defaultSettings = {
+            maxEnemies: 10,
+            enemySpeed: 2,
+            bulletSpeed: 5,
+            bossStayTime: 10,
+            playerLife: 3
+        };
+
+        // 難易度判定
+        this.gameDifficulty = calculateDifficultyLevel(settings);
         
-        // AndroidのChromeで検索バーなどが表示されている場合
-        if (this.isAndroidChrome()) {
-            // 利用可能な画面領域を計算
-            // 10pxの余裕を持たせる
-            return windowHeight - 10;
+        this.settings = {
+            maxEnemies: (settings.maxEnemies || defaultSettings.maxEnemies) + difficulty,
+            enemySpeed: (settings.enemySpeed || defaultSettings.enemySpeed) + difficulty * 0.5,
+            bulletSpeed: (settings.bulletSpeed || defaultSettings.bulletSpeed) + difficulty * 0.5,
+            bossStayTime: settings.bossStayTime || defaultSettings.bossStayTime,
+            playerLife: settings.playerLife || defaultSettings.playerLife
+        };
+        
+        this.player = {
+            x: 50,
+            y: this.canvas.height / 2,
+            width: 30,
+            height: 30,
+            speed: 5 + difficulty * 0.5,
+            life: this.settings.playerLife
+        };
+        
+        this.enemies = [];
+        this.bullets = [];
+        this.score = 0;
+        this.enemyCount = 0;
+        this.maxEnemies = this.settings.maxEnemies;
+        this.isBossFight = false;
+        this.timeStop = false;
+        this.isGameOver = false;
+        this.isGameCleared = false;
+        
+        // ベストスコアの読み込み
+        try {
+            this.bestScore = parseInt(localStorage.getItem('bestScore')) || 0;
+        } catch (e) {
+            console.error('ベストスコア読み込みエラー:', e);
+            this.bestScore = 0; // localStorage失敗時のフォールバック
         }
         
-        return windowHeight;
+        const bestScoreElement = document.getElementById('best-score');
+        if (bestScoreElement) {
+            bestScoreElement.innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
+        }
+        
+        // スコア倍率の設定（難易度とレベルの両方を考慮）
+        this.scoreMultiplier = this.calculateScoreMultiplier(difficulty);
+        
+        // UI情報の更新
+        this.updateGameInfo();
+        
+        this.setupEventListeners();
+        this.gameLoop();
     }
     
     // キャンバスサイズの調整
@@ -159,10 +113,7 @@ class Game {
         const gameContainer = document.querySelector('.game-container');
         const containerWidth = gameContainer.clientWidth;
         const windowWidth = window.innerWidth;
-        const aspectRatio = 2; // 幅:高さ = 2:1 のアスペクト比
-        
-        // 利用可能な画面高さ（ブラウザUIを考慮）
-        const availableHeight = this.getAvailableScreenHeight();
+        const windowHeight = window.innerHeight;
         
         // スマートフォンかどうかでサイズを調整
         if (this.isMobileDevice()) {
@@ -170,7 +121,7 @@ class Game {
             const isAndroidChrome = this.isAndroidChrome();
             
             if (isAndroidChrome) {
-                console.log(`Android Chrome検出: 利用可能な高さ ${availableHeight}px`);
+                console.log("Android Chrome検出: 特別なキャンバスサイズ調整を適用");
                 
                 // 横持ち推奨メッセージを強制的に非表示（念のため）
                 const orientationMessage = document.getElementById('orientationMessage');
@@ -182,42 +133,22 @@ class Game {
                 }
                 
                 // 画面の向きに基づいて調整
-                const isLandscape = windowWidth > availableHeight;
+                const isLandscape = windowWidth > windowHeight;
                 
                 if (isLandscape) {
-                    // 横向きの場合
-                    // 高さを基準にして、アスペクト比を維持しながら幅を計算
-                    const heightBasedWidth = (availableHeight - 20) * aspectRatio; // 20pxの余裕
-                    // 幅を基準にして、画面の95%を最大値とする
-                    const maxWidth = Math.min(windowWidth * 0.95, 1200);
-                    
-                    // 二つの制約の小さい方を採用
-                    this.canvas.width = Math.min(heightBasedWidth, maxWidth);
-                    this.canvas.height = this.canvas.width / aspectRatio;
+                    // 横向きの場合、画面幅の95%を使用
+                    this.canvas.width = Math.min(windowWidth * 0.95, 1200);
+                    // 横幅の半分をおおよその高さに設定（アスペクト比維持）
+                    this.canvas.height = this.canvas.width / 2;
                 } else {
                     // 縦向きの場合
-                    // 幅を基準にする（画面の95%）
-                    const targetWidth = Math.min(windowWidth * 0.95, 800);
-                    // 高さを計算
-                    const calculatedHeight = targetWidth / aspectRatio;
-                    
-                    // 高さが利用可能な領域を超えないようにする
-                    if (calculatedHeight > (availableHeight - 20)) { // 20pxの余裕
-                        // 高さを基準にして幅を再計算
-                        this.canvas.height = availableHeight - 20;
-                        this.canvas.width = this.canvas.height * aspectRatio;
-                    } else {
-                        this.canvas.width = targetWidth;
-                        this.canvas.height = calculatedHeight;
-                    }
+                    this.canvas.width = Math.min(windowWidth * 0.95, 800);
+                    this.canvas.height = this.canvas.width / 2;
                 }
                 
-                // 最小値の制限
+                // 最小値と最大値の制限
                 this.canvas.width = Math.max(this.canvas.width, 320);
-                this.canvas.height = Math.max(this.canvas.height, 160);
-                
-                // デバッグ情報
-                console.log(`Available height: ${availableHeight}, Canvas size: ${this.canvas.width}x${this.canvas.height}`);
+                this.canvas.height = Math.max(this.canvas.height, 200);
                 
                 // ゲームコンテナのスタイルも調整
                 gameContainer.style.width = this.canvas.width + 'px';
@@ -232,10 +163,10 @@ class Game {
             } else {
                 // 他のモバイルデバイス（iOSなど）の場合
                 this.canvas.width = containerWidth;
-                this.canvas.height = containerWidth / aspectRatio;
+                this.canvas.height = containerWidth / 2; // アスペクト比2:1
                 
                 // 最小高さの設定
-                const minHeight = 180;
+                const minHeight = 300;
                 if (this.canvas.height < minHeight) {
                     this.canvas.height = minHeight;
                 }
@@ -247,7 +178,7 @@ class Game {
         }
         
         // コンソールにサイズ情報を出力（デバッグ用）
-        console.log(`Canvas size: ${this.canvas.width}x${this.canvas.height}, Container width: ${containerWidth}, Window: ${windowWidth}x${availableHeight}`);
+        console.log(`Canvas size: ${this.canvas.width}x${this.canvas.height}, Container width: ${containerWidth}, Window: ${windowWidth}x${windowHeight}`);
         
         // タッチコントロールの位置も更新
         if (this.touchControls) {
@@ -263,7 +194,7 @@ class Game {
             const bestScoreEl = document.getElementById('best-score');
             
             if (scoreEl) scoreEl.innerHTML = `<i class="fas fa-star"></i> スコア: ${this.score}`;
-            if (lifeEl) lifeEl.innerHTML = `<i class="fas fa-heart"></i> ライフ: ${this.life}`;
+            if (lifeEl) lifeEl.innerHTML = `<i class="fas fa-heart"></i> ライフ: ${this.player.life}`;
             if (bestScoreEl) bestScoreEl.innerHTML = `<i class="fas fa-trophy"></i> ベストスコア: ${this.bestScore}`;
         } catch (e) {
             console.error('ゲーム情報更新エラー:', e);
@@ -272,7 +203,7 @@ class Game {
 
     calculateScoreMultiplier(difficulty) {
         // レベルによる基本倍率（2のべき乗）とゲーム難易度による倍率を掛け合わせる
-        return Math.pow(2, difficulty) * this.difficulty.multiplier;
+        return Math.pow(2, difficulty) * this.gameDifficulty.multiplier;
     }
 
     setupEventListeners() {
@@ -320,78 +251,6 @@ class Game {
         window.addEventListener('resize', () => {
             this.updateTouchControlsPosition();
         });
-
-        // 起動時のサイズ調整とウィンドウリサイズイベントの追加
-        if (this.isMobileDevice()) {
-            this.canvas.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: false });
-            this.canvas.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-            this.canvas.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: false });
-            
-            // AndroidのChromeの場合、リサイズイベントを追加
-            if (this.isAndroidChrome()) {
-                console.log("Android Chrome: リサイズイベントリスナーを設定");
-                // リサイズイベントをより頻繁に監視
-                window.addEventListener('resize', () => {
-                    this.resizeCanvas();
-                });
-                
-                // スクロールイベントも監視（ブラウザUIの表示/非表示検出のため）
-                window.addEventListener('scroll', () => {
-                    setTimeout(() => this.resizeCanvas(), 300);
-                });
-                
-                // 向き変更イベント
-                window.addEventListener('orientationchange', () => {
-                    setTimeout(() => this.resizeCanvas(), 300);
-                });
-            }
-        } else {
-            // キーボードイベントリスナー
-            window.addEventListener('keydown', (e) => {
-                if (!this.gameActive) return;
-                
-                if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
-                    this.keyState.up = true;
-                } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
-                    this.keyState.down = true;
-                } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-                    this.keyState.left = true;
-                } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-                    this.keyState.right = true;
-                } else if (e.key === ' ' && !this.isTimeStopActive && this.canUseTimeStop) {
-                    this.activateTimeStop();
-                }
-            });
-            
-            window.addEventListener('keyup', (e) => {
-                if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
-                    this.keyState.up = false;
-                } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
-                    this.keyState.down = false;
-                } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-                    this.keyState.left = false;
-                } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-                    this.keyState.right = false;
-                }
-            });
-        }
-        
-        // 共通のリサイズイベント
-        window.addEventListener('resize', () => {
-            // リサイズ中のフラグを設定
-            if (this.resizeTimeout) {
-                clearTimeout(this.resizeTimeout);
-            }
-            this.resizeTimeout = setTimeout(() => {
-                this.resizeCanvas();
-                this.resizeTimeout = null;
-            }, 100);
-        });
-        
-        // ウィンドウリサイズイベントを手動でトリガー
-        setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-        }, 100);
     }
     
     // タッチコントロールの位置を更新
@@ -508,16 +367,21 @@ class Game {
     
     // タイムストップ機能を起動
     activateTimeStop() {
-        if (!this.isTimeStopActive) {
-            this.isTimeStopActive = true;
+        if (!this.timeStop) {
+            this.timeStop = true;
             setTimeout(() => {
-                this.isTimeStopActive = false;
-            }, this.settings.timeStopDuration * 1000);
+                this.timeStop = false;
+            }, 2000);
         }
     }
 
     spawnEnemy() {
-        if (this.enemies.length < this.maxEnemies && Math.random() < this.settings.enemySpawnRate) {
+        if (this.enemyCount >= this.maxEnemies && !this.isBossFight) {
+            this.spawnBoss();
+            return;
+        }
+
+        if (this.enemyCount < this.maxEnemies && Math.random() < 0.02) {
             const enemy = {
                 x: this.canvas.width,
                 y: Math.random() * (this.canvas.height - 40),
@@ -525,15 +389,16 @@ class Game {
                 height: 30,
                 speed: this.settings.enemySpeed + Math.random() * 2,
                 pattern: Math.random() < 0.5 ? 'straight' : 'zigzag',
-                bulletCount: Math.floor(this.enemies.length / 3) + 1 + this.difficulty,
+                bulletCount: Math.floor(this.enemyCount / 3) + 1 + this.difficulty,
                 direction: 1
             };
             this.enemies.push(enemy);
+            this.enemyCount++;
         }
     }
 
     spawnBoss() {
-        this.bossActive = true;
+        this.isBossFight = true;
         const boss = {
             x: this.canvas.width - 100,
             y: this.canvas.height / 2,
@@ -581,7 +446,7 @@ class Game {
     }
 
     updateEnemies() {
-        if (this.isTimeStopActive) return;
+        if (this.timeStop) return;
 
         this.enemies.forEach(enemy => {
             if (enemy.pattern === 'straight') {
@@ -635,7 +500,7 @@ class Game {
                         // 画面外に出たらクリア
                         if (enemy.x > this.canvas.width + enemy.width) {
                             enemy.isDead = true;
-                            if (this.bossActive) {
+                            if (this.isBossFight) {
                                 // ボスクリア時にボーナススコアは付与しない
                                 this.gameCleared();
                             }
@@ -674,7 +539,7 @@ class Game {
     }
 
     updateBullets() {
-        if (this.isTimeStopActive) return;
+        if (this.timeStop) return;
 
         this.bullets.forEach(bullet => {
             bullet.x += Math.cos(bullet.angle) * bullet.speed;
@@ -720,9 +585,9 @@ class Game {
 
         // 衝突があった場合のライフ処理
         if (isHit) {
-            this.life--;
+            this.player.life--;
             // ライフが0以下になった場合のみゲームオーバー
-            if (this.life <= 0) {
+            if (this.player.life <= 0) {
                 this.gameOver();
             }
         }
@@ -803,7 +668,7 @@ class Game {
         
         // レベルと難易度の表示
         if (finalLevel) finalLevel.textContent = `${this.difficulty + 1}`;
-        if (finalDifficulty) finalDifficulty.textContent = this.difficulty.level;
+        if (finalDifficulty) finalDifficulty.textContent = this.gameDifficulty.level;
 
         // スコアの更新
         finalScore.textContent = this.score.toString();
@@ -830,7 +695,7 @@ class Game {
         if (this.score > this.bestScore) {
             this.bestScore = this.score;
             try {
-                localStorage.setItem('runawayBestScore', this.bestScore.toString());
+                localStorage.setItem('bestScore', this.bestScore.toString());
             } catch (e) {
                 console.error('ベストスコア保存エラー:', e);
                 // localStorage失敗時でもメモリ上のbestScoreは更新済み
@@ -985,6 +850,11 @@ class Game {
         }, 100);
     }
     
+    // AndroidのChromeかどうかの判定
+    isAndroidChrome() {
+        return /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+    }
+
     retry(newDifficulty = this.difficulty) {
         const gameContainer = document.querySelector('.game-container');
         gameContainer.style.display = 'block';
@@ -1028,7 +898,7 @@ class Game {
         }
         
         // タイムストップエフェクト
-        if (this.isTimeStopActive) {
+        if (this.timeStop) {
             this.ctx.fillStyle = 'rgba(0, 255, 255, 0.2)';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         }
@@ -1039,7 +909,7 @@ class Game {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         this.ctx.shadowColor = '#4df';
-        this.ctx.shadowBlur = this.isTimeStopActive ? 20 : 10;
+        this.ctx.shadowBlur = this.timeStop ? 20 : 10;
         this.ctx.fillText('\uf1ae', this.player.x + this.player.width/2, this.player.y + this.player.height/2); // child
         
         // 敵の描画（チェスの駒のアイコン）
@@ -1090,7 +960,7 @@ class Game {
         });
         
         // タイムストップエフェクト中の追加表現
-        if (this.isTimeStopActive) {
+        if (this.timeStop) {
             // タイムストップ中の追加エフェクト（砂時計のアイコン）
             this.ctx.fillStyle = 'rgba(77, 255, 255, 0.3)';
             this.ctx.font = '60px FontAwesome';
@@ -1107,7 +977,7 @@ class Game {
         this.ctx.textBaseline = 'top';
         this.ctx.shadowColor = 'rgba(0, 255, 255, 0.5)';
         this.ctx.shadowBlur = 10;
-        this.ctx.fillText(`LEVEL ${this.difficulty + 1} - ${this.difficulty.level}`, this.canvas.width / 2, 10);
+        this.ctx.fillText(`LEVEL ${this.difficulty + 1} - ${this.gameDifficulty.level}`, this.canvas.width / 2, 10);
         this.ctx.shadowBlur = 0;
         
         // スコア情報の更新
@@ -1140,7 +1010,7 @@ class Game {
         const timeStopBtn = this.touchControls.timeStopBtn;
         
         // タイムストップの背景円
-        this.ctx.fillStyle = this.isTimeStopActive ? 'rgba(0, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.2)';
+        this.ctx.fillStyle = this.timeStop ? 'rgba(0, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.2)';
         this.ctx.beginPath();
         this.ctx.arc(timeStopBtn.x, timeStopBtn.y, timeStopBtn.radius, 0, Math.PI * 2);
         this.ctx.fill();
@@ -1174,7 +1044,7 @@ class Game {
         
         try {
             // 時間経過でのスコア加算（生き残った時間に比例）
-            if (!this.isTimeStopActive) {
+            if (!this.timeStop) {
                 // 生存時間による得点：基本1点 × 難易度倍率
                 this.score += 1 * this.scoreMultiplier;
             }
@@ -1208,7 +1078,7 @@ function shareOnTwitter() {
     if (window.game && finalScore) {
         text = `クロノスサーガで${finalScore.textContent}点を達成！` +
                `${newRecordBadge && newRecordBadge.style.display === 'inline-block' ? '【新記録達成！】' : ''}` +
-               ` レベル${window.game.difficulty + 1}（${window.game.difficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
+               ` レベル${window.game.difficulty + 1}（${window.game.gameDifficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
     }
     
     const url = 'https://akira-kano.github.io/chronos24/games/runaway/index.html';
@@ -1224,7 +1094,7 @@ function shareOnLine() {
     if (window.game && finalScore) {
         text = `クロノスサーガで${finalScore.textContent}点を達成！` +
                `${newRecordBadge && newRecordBadge.style.display === 'inline-block' ? '【新記録達成！】' : ''}` +
-               ` レベル${window.game.difficulty + 1}（${window.game.difficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
+               ` レベル${window.game.difficulty + 1}（${window.game.gameDifficulty.level}）まで到達！時を止めて敵を回避するアクションゲーム！`;
     }
     
     const url = 'https://akira-kano.github.io/chronos24/games/runaway/index.html';
@@ -1317,63 +1187,103 @@ window.onload = () => {
 
     // ゲーム開始処理
     function startGame() {
-        // ユーザー設定を取得
+        const maxEnemies = parseInt(document.getElementById('maxEnemies').value);
+        const enemySpeed = parseFloat(document.getElementById('enemySpeed').value);
+        const bulletSpeed = parseFloat(document.getElementById('bulletSpeed').value);
+        const bossStayTime = parseInt(document.getElementById('bossStayTime').value);
+        const playerLife = parseInt(document.getElementById('playerLife').value);
+
         const settings = {
-            playerSpeed: parseFloat(document.getElementById('playerSpeed').value),
-            enemySpeed: parseFloat(document.getElementById('enemySpeed').value),
-            enemySpawnRate: parseFloat(document.getElementById('enemyRate').value),
-            bulletSpeed: parseFloat(document.getElementById('bulletSpeed').value),
-            timeStopDuration: parseFloat(document.getElementById('timeStopDuration').value)
+            maxEnemies,
+            enemySpeed,
+            bulletSpeed,
+            bossStayTime,
+            playerLife
         };
-        
-        // 難易度レベルを計算
-        const difficulty = calculateDifficultyLevel(settings);
-        
-        // 設定パネルを非表示にする
+
+        // 設定パネルを非表示
         document.querySelector('.settings-panel').style.display = 'none';
         
-        // AndroidのChromeかどうか判定
-        const isAndroidChrome = /Android/i.test(navigator.userAgent) && /Chrome/i.test(navigator.userAgent);
+        // AndroidとiOSを検出
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isChrome = /Chrome/i.test(navigator.userAgent);
+        const isMobile = isAndroid || isIOS;
         
-        // ゲームコンテナの表示スタイルを設定
-        const gameContainer = document.querySelector('.game-container');
-        gameContainer.style.display = 'flex';
-        gameContainer.style.justifyContent = 'center';
-        gameContainer.style.alignItems = 'center';
-        
-        if (isAndroidChrome) {
-            // Android Chromeの場合は特別な調整
-            console.log("Android Chrome検出：特別なコンテナスタイルを適用");
+        // ゲーム開始時に横持ち推奨メッセージを強制的に非表示にする
+        const orientationMessage = document.getElementById('orientationMessage');
+        if (orientationMessage) {
+            // 複数の方法で確実に非表示にする
+            orientationMessage.style.display = 'none';
+            orientationMessage.classList.remove('mobile-only');
+            orientationMessage.classList.add('hidden');
             
-            // サイズをウィンドウに合わせて調整
-            gameContainer.style.width = '95%';
-            gameContainer.style.maxWidth = '1200px';
-            gameContainer.style.margin = '0 auto';
-            
-            // ゲームコンテナのポジションを相対位置に
-            gameContainer.style.position = 'relative';
-            
-            // 横持ち推奨メッセージを強制的に非表示にする
-            const orientationMessage = document.getElementById('orientationMessage');
-            if (orientationMessage) {
-                orientationMessage.style.display = 'none';
-                orientationMessage.classList.remove('mobile-only');
+            // Android Chromeでの問題に対処するため
+            if (isAndroid && isChrome) {
+                // 要素をDOM上から完全に削除
                 if (orientationMessage.parentNode) {
                     orientationMessage.parentNode.removeChild(orientationMessage);
                 }
+                
+                // 横持きメッセージのリスナーも削除（ある場合）
+                window.removeEventListener('orientationchange', window.checkOrientation);
+                window.removeEventListener('resize', window.checkOrientation);
             }
         }
         
-        // ゲームインスタンスを作成
-        window.gameInstance = new Game(settings, difficulty);
+        // ゲームコンテナを表示する前に適切なサイズを設定
+        const gameContainer = document.querySelector('.game-container');
         
-        // ゲーム開始
-        window.gameInstance.start();
+        // AndroidのChromeの場合は特別な処理
+        if (isAndroid && isChrome) {
+            console.log("Android Chrome検出: コンテナサイズを最適化");
+            
+            // 画面の向きチェック
+            const isLandscape = window.innerWidth > window.innerHeight;
+            
+            if (isLandscape) {
+                // 横向きの場合、画面幅の95%を使用
+                gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
+            } else {
+                // 縦向きの場合も95%
+                gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
+            }
+            
+            gameContainer.style.maxWidth = '1200px';
+            gameContainer.style.margin = '0 auto';
+        }
         
-        // 遅延してリサイズイベントをトリガー
-        setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-        }, 300);
+        // ゲームコンテナを表示
+        gameContainer.style.display = 'flex';
+        
+        // モーダル要素を適切な場所に配置（Androidの全画面モード対策）
+        const resultModal = document.getElementById('resultModal');
+        if (resultModal && isAndroid) {
+            // AndroidではモーダルをDOMの最上位に配置
+            if (resultModal.parentNode) {
+                resultModal.parentNode.removeChild(resultModal);
+            }
+            document.body.appendChild(resultModal);
+        }
+        
+        // ゲームのインスタンス生成
+        window.game = new Game(settings);
+        
+        // リサイズイベントの設定
+        window.addEventListener('resize', function() {
+            if (window.game) {
+                // Android Chromeの場合は、リサイズ時にコンテナサイズも調整
+                if (isAndroid && isChrome) {
+                    const isLandscape = window.innerWidth > window.innerHeight;
+                    if (isLandscape) {
+                        gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
+                    } else {
+                        gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
+                    }
+                }
+                window.game.resizeCanvas();
+            }
+        });
     }
 
     // スタートボタンのクリックイベント

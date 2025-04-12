@@ -25,10 +25,9 @@ body {
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
     border-radius: 5px;
     overflow: hidden;
-    margin: 10px auto;
+    margin: 0 auto;
     width: auto;
     max-width: 95vw;
-    height: auto;
 }
 
 #gameCanvas {
@@ -36,7 +35,6 @@ body {
     background-color: rgba(0, 0, 0, 0.8);
     display: block;
     margin: 0 auto;
-    max-height: calc(100vh - 40px); /* ブラウザUIを考慮した最大高さ */
 }
 
 .game-info {
@@ -612,7 +610,6 @@ body {
 @media (max-width: 768px) {
     body {
         font-size: 14px;
-        padding: 5px 0;
     }
     
     .game-container {
@@ -620,8 +617,7 @@ body {
         height: auto;
         max-width: 1200px;
         padding: 0;
-        margin: 5px auto;
-        box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        margin: 0 auto;
     }
     
     canvas {
@@ -631,7 +627,6 @@ body {
         height: auto;
         display: block;
         max-width: 100%;
-        max-height: calc(100vh - 30px); /* モバイルブラウザUIを考慮 */
     }
     
     .game-info {
@@ -1204,16 +1199,12 @@ body {
 
 /* Android Chrome向けの特別なスタイル */
 @media screen and (max-width: 768px) and (-webkit-min-device-pixel-ratio:0) {
-    body {
-        padding: 5px 0;
-        min-height: calc(100vh - 10px); /* ブラウザUIを考慮 */
-    }
-    
     .game-container {
-        width: auto !important;
-        max-width: 95vw;
-        margin: 5px auto;
-        height: auto !important;
+        width: 95vw !important;
+        max-width: 1200px;
+        margin: 0 auto;
+        box-sizing: border-box;
+        padding: 0;
     }
     
     #gameCanvas {
@@ -1221,6 +1212,5 @@ body {
         height: auto;
         box-sizing: border-box;
         border-radius: 0;
-        max-height: calc(100vh - 30px); /* ブラウザUIを考慮 */
     }
 } 
