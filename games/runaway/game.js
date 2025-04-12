@@ -112,23 +112,57 @@ class Game {
     resizeCanvas() {
         const gameContainer = document.querySelector('.game-container');
         const containerWidth = gameContainer.clientWidth;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
         
         // スマートフォンかどうかでサイズを調整
         if (this.isMobileDevice()) {
-            // モバイルデバイスの場合は画面幅に合わせる
-            this.canvas.width = containerWidth;
-            this.canvas.height = containerWidth / 2; // アスペクト比2:1
+            // AndroidのChromeかどうか判定
+            const isAndroidChrome = this.isAndroidChrome();
             
-            // 最小高さの設定
-            const minHeight = 300;
-            if (this.canvas.height < minHeight) {
-                this.canvas.height = minHeight;
+            if (isAndroidChrome) {
+                console.log("Android Chrome検出: 特別なキャンバスサイズ調整を適用");
+                
+                // 画面の向きに基づいて調整
+                const isLandscape = windowWidth > windowHeight;
+                
+                if (isLandscape) {
+                    // 横向きの場合、画面幅の90%を使用
+                    this.canvas.width = Math.min(windowWidth * 0.95, containerWidth);
+                    // 横幅の半分をおおよその高さに設定（アスペクト比維持）
+                    this.canvas.height = this.canvas.width / 2;
+                } else {
+                    // 縦向きの場合
+                    this.canvas.width = windowWidth * 0.95;
+                    this.canvas.height = this.canvas.width / 2;
+                }
+                
+                // 最小値と最大値の制限
+                this.canvas.width = Math.min(Math.max(this.canvas.width, 300), 1200);
+                this.canvas.height = Math.min(Math.max(this.canvas.height, 200), 600);
+                
+                // ゲームコンテナのスタイルも調整
+                gameContainer.style.width = this.canvas.width + 'px';
+                gameContainer.style.height = this.canvas.height + 'px';
+            } else {
+                // 他のモバイルデバイス（iOSなど）の場合
+                this.canvas.width = containerWidth;
+                this.canvas.height = containerWidth / 2; // アスペクト比2:1
+                
+                // 最小高さの設定
+                const minHeight = 300;
+                if (this.canvas.height < minHeight) {
+                    this.canvas.height = minHeight;
+                }
             }
         } else {
             // デスクトップの場合は固定サイズ
             this.canvas.width = 800;
             this.canvas.height = 400;
         }
+        
+        // コンソールにサイズ情報を出力（デバッグ用）
+        console.log(`Canvas size: ${this.canvas.width}x${this.canvas.height}, Container width: ${containerWidth}, Window: ${windowWidth}x${windowHeight}`);
         
         // タッチコントロールの位置も更新
         if (this.touchControls) {
@@ -1154,14 +1188,36 @@ window.onload = () => {
         // 設定パネルを非表示
         document.querySelector('.settings-panel').style.display = 'none';
         
-        // ゲームコンテナを表示
-        const gameContainer = document.querySelector('.game-container');
-        gameContainer.style.display = 'flex';
-        
         // AndroidとiOSを検出
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isChrome = /Chrome/i.test(navigator.userAgent);
         const isMobile = isAndroid || isIOS;
+        
+        // ゲームコンテナを表示する前に適切なサイズを設定
+        const gameContainer = document.querySelector('.game-container');
+        
+        // AndroidのChromeの場合は特別な処理
+        if (isAndroid && isChrome) {
+            console.log("Android Chrome検出: コンテナサイズを最適化");
+            
+            // 画面の向きチェック
+            const isLandscape = window.innerWidth > window.innerHeight;
+            
+            if (isLandscape) {
+                // 横向きの場合、画面幅の95%を使用
+                gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
+            } else {
+                // 縦向きの場合も95%
+                gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
+            }
+            
+            gameContainer.style.maxWidth = '1200px';
+            gameContainer.style.margin = '0 auto';
+        }
+        
+        // ゲームコンテナを表示
+        gameContainer.style.display = 'flex';
         
         // モーダル要素を適切な場所に配置（Androidの全画面モード対策）
         const resultModal = document.getElementById('resultModal');
@@ -1173,39 +1229,21 @@ window.onload = () => {
             document.body.appendChild(resultModal);
         }
         
-        // フルスクリーンモードを試みる（Androidでは行わない）
-        if (isMobile && !isAndroid) {
-            setTimeout(() => {
-                try {
-                    // iOSの場合のみフルスクリーンを試みる
-                    if (gameContainer.requestFullscreen) {
-                        gameContainer.requestFullscreen().catch(err => {
-                            console.log('フルスクリーン切替エラー:', err);
-                        });
-                    }
-                } catch (e) {
-                    console.error("フルスクリーン切替エラー:", e);
-                }
-            }, 500);
-        }
-        
-        // 画面の向き変更イベント（モバイル用）
-        if (isMobile) {
-            window.addEventListener('orientationchange', function() {
-                setTimeout(function() {
-                    if (window.game) {
-                        window.game.resizeCanvas();
-                    }
-                }, 200);
-            });
-        }
-        
         // ゲームのインスタンス生成
         window.game = new Game(settings);
         
         // リサイズイベントの設定
         window.addEventListener('resize', function() {
             if (window.game) {
+                // Android Chromeの場合は、リサイズ時にコンテナサイズも調整
+                if (isAndroid && isChrome) {
+                    const isLandscape = window.innerWidth > window.innerHeight;
+                    if (isLandscape) {
+                        gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
+                    } else {
+                        gameContainer.style.width = (window.innerWidth * 0.95) + 'px';
+                    }
+                }
                 window.game.resizeCanvas();
             }
         });
