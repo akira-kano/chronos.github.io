@@ -834,7 +834,7 @@ body {
         margin-right: 15px;
     }
     
-    /* 横向き推奨メッセージ */
+    /* 横持ち推奨メッセージ */
     .orientation-message {
         display: none; /* デフォルトでは非表示 */
         position: fixed;
@@ -1010,10 +1010,15 @@ body {
     }
 }
 
-/* モバイルデバイスの縦向きの場合のみ表示 */
+/* モバイルデバイスの縦向きの場合のみ表示（ただしゲーム開始前のみ） */
 @media (max-width: 768px) and (orientation: portrait) {
-    .orientation-message.mobile-only {
+    .orientation-message.mobile-only:not(.hidden) {
         display: flex;
+    }
+    
+    /* ゲームプレイ中は非表示 */
+    body:has(.game-container[style*="display: flex"]) .orientation-message {
+        display: none !important;
     }
 }
 
