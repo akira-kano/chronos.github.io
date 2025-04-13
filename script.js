@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ギャラリー画像のモーダル表示
     const galleryImages = document.querySelectorAll('.gallery-grid img');
     let currentImageIndex = 0;
+    let currentGalleryImages = [];
 
     // モーダル要素の作成
     const modal = document.createElement('div');
@@ -94,8 +95,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ギャラリー画像のクリックイベント
     galleryImages.forEach((img, index) => {
-        img.addEventListener('click', () => {
-            currentImageIndex = index;
+        img.addEventListener('click', (e) => {
+            // クリックされた画像が所属するギャラリーのすべての画像を取得
+            const gallerySection = e.target.closest('section');
+            currentGalleryImages = Array.from(gallerySection.querySelectorAll('.gallery-grid img'));
+            
+            // クリックされた画像のインデックスを設定
+            currentImageIndex = currentGalleryImages.indexOf(img);
+            
+            // モーダルを表示
             const modalImg = modal.querySelector('img');
             modalImg.src = img.src;
             modal.style.display = 'block';
@@ -109,13 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 前後の画像に移動
     modal.querySelector('.prev').addEventListener('click', () => {
-        currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
-        modal.querySelector('img').src = galleryImages[currentImageIndex].src;
+        currentImageIndex = (currentImageIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
+        modal.querySelector('img').src = currentGalleryImages[currentImageIndex].src;
     });
 
     modal.querySelector('.next').addEventListener('click', () => {
-        currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
-        modal.querySelector('img').src = galleryImages[currentImageIndex].src;
+        currentImageIndex = (currentImageIndex + 1) % currentGalleryImages.length;
+        modal.querySelector('img').src = currentGalleryImages[currentImageIndex].src;
     });
 
     // モーダル外クリックで閉じる
@@ -129,11 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (modal.style.display === 'block') {
             if (e.key === 'ArrowLeft') {
-                currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
-                modal.querySelector('img').src = galleryImages[currentImageIndex].src;
+                currentImageIndex = (currentImageIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
+                modal.querySelector('img').src = currentGalleryImages[currentImageIndex].src;
             } else if (e.key === 'ArrowRight') {
-                currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
-                modal.querySelector('img').src = galleryImages[currentImageIndex].src;
+                currentImageIndex = (currentImageIndex + 1) % currentGalleryImages.length;
+                modal.querySelector('img').src = currentGalleryImages[currentImageIndex].src;
             } else if (e.key === 'Escape') {
                 modal.style.display = 'none';
             }

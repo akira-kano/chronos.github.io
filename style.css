@@ -216,6 +216,62 @@ h2 {
     transform: scale(1.05);
 }
 
+/* AIギャラリー */
+.ai-gallery {
+    background-color: rgba(30, 30, 50, 0.8);
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-gallery::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(76, 29, 149, 0.2) 0%, rgba(30, 58, 138, 0.2) 100%);
+    z-index: 0;
+}
+
+.ai-gallery h2 {
+    position: relative;
+    z-index: 1;
+    color: #a78bfa;
+    text-shadow: 0 0 15px rgba(167, 139, 250, 0.5);
+}
+
+.ai-gallery .gallery-description {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    color: #d8b4fe;
+    font-size: 1.1rem;
+}
+
+.ai-gallery .gallery-grid {
+    position: relative;
+    z-index: 1;
+}
+
+.ai-gallery .gallery-grid img {
+    height: 300px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(167, 139, 250, 0.3);
+    border: 2px solid transparent;
+    transition: all 0.4s ease;
+}
+
+.ai-gallery .gallery-grid img:hover {
+    transform: scale(1.03) translateY(-5px);
+    border-color: #a78bfa;
+    box-shadow: 0 10px 25px rgba(167, 139, 250, 0.5);
+}
+
 /* ゲーム */
 .games {
     background-color: var(--color-dark-gray);
@@ -339,31 +395,52 @@ footer {
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .hero h1 {
-        font-size: 3rem;
+        font-size: 2.5rem;
     }
-
+    
     .hero .subtitle {
         font-size: 1.5rem;
     }
-
+    
     .hero .catchphrase {
         font-size: 1.2rem;
     }
-
+    
     .world-content {
         grid-template-columns: 1fr;
     }
-
+    
     .game-screenshots {
         grid-template-columns: 1fr;
     }
-
+    
     section {
         padding: 3rem 1rem;
     }
-
+    
     h2 {
         font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .ai-gallery .gallery-grid img {
+        height: 220px;
+    }
+    
+    .ai-gallery .gallery-description {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+/* モバイル小型画面対応 */
+@media (max-width: 480px) {
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ai-gallery .gallery-grid img {
+        height: 250px;
     }
 }
 
