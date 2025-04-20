@@ -447,19 +447,25 @@ footer {
 .kindle-link-container {
     margin: 2rem 0;
     text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
 }
 
 .kindle-link {
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.5rem 3rem;
+    padding: 1.5rem 2.5rem;
     background: linear-gradient(135deg, #1e3a8a 0%, #4c1d95 100%);
     color: var(--color-text);
     text-decoration: none;
     border-radius: 15px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    flex: 0 1 300px;
+    max-width: 300px;
 }
 
 .kindle-link:hover {
